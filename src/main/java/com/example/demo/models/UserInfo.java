@@ -43,4 +43,10 @@ public class UserInfo {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "created_by")
+    private LocalDateTime createdBy;
+
+    @Column(name = "updated_by")
+    private LocalDateTime updatedBy;
 }
