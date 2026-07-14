@@ -6,6 +6,7 @@
  **/
 package com.example.demo.models;
 
+import com.example.demo.constants.DocumentStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -38,6 +39,21 @@ public class DocumentInfo {
     @Column(name = "storage_path")
     private String storagePath;
 
+    @Column(name = "checksum")
+    private String checksum;
+
+    @Column(name = "status")
+    private DocumentStatus status;
+
+    @Column(name = "total_pages")
+    private String totalPages;
+
+    @Column(name = "chunk_count")
+    private Long chunkCount;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "processed_at")
+    private LocalDateTime processedAt;
 }
