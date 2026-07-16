@@ -6,8 +6,31 @@
  **/
 package com.example.demo.models;
 
-import jakarta.persistence.Table;
+import com.example.demo.constants.ChatRole;
+import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 
 @Table(name = "chat_message")
 public class ChatMessage {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
+
+    @Column(name = "chat_session_id")
+    private String chatSessionId;
+
+    @Column(name = "role")
+    @Enumerated(EnumType.STRING)
+    private ChatRole role;
+
+    @Column(name = "message")
+    private String message;
+
+    @Column(name = "token_usage")
+    private Long tokenUsage;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 }

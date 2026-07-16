@@ -7,6 +7,9 @@
 package com.example.demo.constants;
 
 public enum DocumentStatus {
-    DOCX,
-    PDF
+    UPLOADING,
+    PROCESSING,
+    READY,
+    FAILED,
+    DELETED
 }

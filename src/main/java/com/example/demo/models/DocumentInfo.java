@@ -43,6 +43,7 @@ public class DocumentInfo {
     private String checksum;
 
     @Column(name = "status")
+    @Enumerated(EnumType.STRING)
     private DocumentStatus status;
 
     @Column(name = "total_pages")

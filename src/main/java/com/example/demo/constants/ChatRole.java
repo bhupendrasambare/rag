@@ -1,2 +1,7 @@
-package com.example.demo.constants;public enum ChatRole {
+package com.example.demo.constants;
+
+public enum ChatRole {
+    USER,
+    ASSISTANT,
+    SYSTEM
 }
