@@ -7,30 +7,38 @@
 package com.example.demo.models;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
+@Entity
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "document_chunks")
 public class DocumentChunks {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    private UUID id;
 
     @Column(name = "document_id")
-    private String documentId;
+    private UUID documentId;
 
     @Column(name = "chunk_index")
-    private String chunkIndex;
+    private Integer chunkIndex;
 
     @Column(name = "content")
     private String content;
 
     @Column(name = "token_count")
-    private String tokenCount;
+    private Integer tokenCount;
 
     @Column(name = "page_number")
-    private String pageNumber;
+    private Integer pageNumber;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

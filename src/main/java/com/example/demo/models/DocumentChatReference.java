@@ -7,22 +7,31 @@
 package com.example.demo.models;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Table(name = "document_char_reference")
+import java.util.UUID;
+
+@Entity
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "document_chat_reference")
 public class DocumentChatReference {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    private UUID id;
 
     @Column(name = "chat_message_id")
-    private String chatMessageId;
+    private UUID chatMessageId;
 
     @Column(name = "document_id")
-    private String documentId;
+    private UUID documentId;
 
     @Column(name = "chunk_id")
-    private String chunkId;
+    private UUID chunkId;
 
     @Column(name = "similarity_score")
     private Float similarityScore;

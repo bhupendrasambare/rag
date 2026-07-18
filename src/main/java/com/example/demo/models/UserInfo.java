@@ -6,16 +6,25 @@
  **/
 package com.example.demo.models;
 
+import com.example.demo.constants.UserRole;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
+@Entity
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "user_info")
 public class UserInfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    private UUID id;
 
     @Column(name = "first_name")
     private String firstName;
@@ -23,7 +32,7 @@ public class UserInfo {
     @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "email")
+    @Column(unique = true, nullable = false)
     private String email;
 
     @Column(name = "password_hash")
@@ -33,7 +42,8 @@ public class UserInfo {
     private String profileImage;
 
     @Column(name = "role")
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
     @Column(name = "active")
     private Boolean active;
@@ -45,8 +55,8 @@ public class UserInfo {
     private LocalDateTime updatedAt;
 
     @Column(name = "created_by")
-    private LocalDateTime createdBy;
+    private UUID createdBy;
 
     @Column(name = "updated_by")
-    private LocalDateTime updatedBy;
+    private UUID updatedBy;
 }

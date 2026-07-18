@@ -8,24 +8,32 @@ package com.example.demo.models;
 
 import com.example.demo.constants.ChatRole;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
+@Entity
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "chat_message")
 public class ChatMessage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    private UUID id;
 
     @Column(name = "chat_session_id")
-    private String chatSessionId;
+    private UUID chatSessionId;
 
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private ChatRole role;
 
-    @Column(name = "message")
+    @Column(name = "message", nullable = false, columnDefinition = "TEXT")
     private String message;
 
     @Column(name = "token_usage")

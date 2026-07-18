@@ -8,18 +8,26 @@ package com.example.demo.models;
 
 import com.example.demo.constants.DocumentStatus;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
+@Entity
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "document_info")
 public class DocumentInfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    private UUID id;
 
     @Column(name = "user_id")
-    private String userId;
+    private UUID userId;
 
     @Column(name = "file_name")
     private String fileName;
@@ -34,12 +42,12 @@ public class DocumentInfo {
     private String mimeType;
 
     @Column(name = "file_size")
-    private Double fileSize;
+    private Long fileSize;
 
     @Column(name = "storage_path")
     private String storagePath;
 
-    @Column(name = "checksum")
+    @Column(name = "checksum", unique = true)
     private String checksum;
 
     @Column(name = "status")
@@ -47,7 +55,7 @@ public class DocumentInfo {
     private DocumentStatus status;
 
     @Column(name = "total_pages")
-    private String totalPages;
+    private Integer totalPages;
 
     @Column(name = "chunk_count")
     private Long chunkCount;
