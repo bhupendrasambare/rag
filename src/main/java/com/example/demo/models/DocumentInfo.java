@@ -7,6 +7,7 @@
 package com.example.demo.models;
 
 import com.example.demo.constants.DocumentStatus;
+import com.example.demo.constants.FileType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,7 +20,13 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "document_info")
+@Table(
+        name = "document_info",
+        indexes = {
+                @Index(name="idx_document_user", columnList="user_id"),
+                @Index(name="idx_document_status", columnList="status")
+        }
+)
 public class DocumentInfo {
 
     @Id
@@ -29,28 +36,35 @@ public class DocumentInfo {
     @Column(name = "user_id")
     private UUID userId;
 
-    @Column(name = "file_name")
+    @Column(name = "embedding_model", nullable = false, length = 100)
+    private String embeddingModel;
+
+    @Column(name = "chat_model", nullable = false, length = 100)
+    private String chatModel;
+
+    @Column(name = "file_name", nullable = false, length = 225)
     private String fileName;
 
-    @Column(name = "original_file_name")
+    @Column(name = "original_file_name", nullable = false, length = 225)
     private String originalFileName;
 
-    @Column(name = "file_type")
-    private String fileType;
+    @Column(name = "file_type", nullable = false, length = 30)
+    @Enumerated(EnumType.STRING)
+    private FileType fileType;
 
-    @Column(name = "mime_type")
+    @Column(name = "mime_type", nullable = false, length = 100)
     private String mimeType;
 
-    @Column(name = "file_size")
+    @Column(name = "file_size", nullable = false)
     private Long fileSize;
 
-    @Column(name = "storage_path")
+    @Column(name = "storage_path", nullable = false, columnDefinition = "TEXT")
     private String storagePath;
 
-    @Column(name = "checksum", unique = true)
+    @Column(name = "checksum", nullable = false, unique = true, length = 128)
     private String checksum;
 
-    @Column(name = "status")
+    @Column(name = "status", nullable = false, length = 30)
     @Enumerated(EnumType.STRING)
     private DocumentStatus status;
 
@@ -65,4 +79,7 @@ public class DocumentInfo {
 
     @Column(name = "processed_at")
     private LocalDateTime processedAt;
+
+    @Version
+    private Long version;
 }

@@ -25,18 +25,26 @@ public class RefreshToken {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "user_id")
+    @Column(name = "user_id", nullable = false)
     private UUID userId;
 
-    @Column(name = "token", unique = true, columnDefinition = "TEXT")
+    @Column(
+            name = "token",
+            nullable = false,
+            unique = true,
+            columnDefinition = "TEXT"
+    )
     private String token;
 
-    @Column(name = "revoked")
+    @Column(name = "revoked", nullable = false)
     private Boolean revoked;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "expired_at")
+    @Column(name = "expired_at", nullable = false)
     private LocalDateTime expiredAt;
+
+    @Version
+    private Long version;
 }

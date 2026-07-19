@@ -35,4 +35,7 @@ public class DocumentChatReference {
 
     @Column(name = "similarity_score")
     private Float similarityScore;
+
+    @Version
+    private Long version;
 }

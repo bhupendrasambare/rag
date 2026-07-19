@@ -45,4 +45,7 @@ public class ProcessingEvent {
 
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
+
+    @Version
+    private Long version;
 }
