@@ -24,16 +24,16 @@ public class DocumentChatReference {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "chat_message_id")
+    @Column(name = "chat_message_id", nullable = false)
     private UUID chatMessageId;
 
-    @Column(name = "document_id")
+    @Column(name = "document_id", nullable = false)
     private UUID documentId;
 
-    @Column(name = "chunk_id")
+    @Column(name = "chunk_id", nullable = false)
     private UUID chunkId;
 
-    @Column(name = "similarity_score")
+    @Column(name = "similarity_score", nullable = false)
     private Float similarityScore;
 
     @Version

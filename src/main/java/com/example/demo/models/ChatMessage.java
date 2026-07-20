@@ -26,20 +26,24 @@ public class ChatMessage {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "chat_session_id")
+    @Column(name = "chat_session_id", nullable = false)
     private UUID chatSessionId;
 
-    @Column(name = "role")
     @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false, length = 20)
     private ChatRole role;
 
-    @Column(name = "message", nullable = false, columnDefinition = "TEXT")
+    @Column(
+            name = "message",
+            nullable = false,
+            columnDefinition = "TEXT"
+    )
     private String message;
 
     @Column(name = "token_usage")
     private Long tokenUsage;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @Version

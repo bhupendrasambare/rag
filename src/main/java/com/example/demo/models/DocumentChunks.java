@@ -25,13 +25,17 @@ public class DocumentChunks {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "document_id")
+    @Column(name = "document_id", nullable = false)
     private UUID documentId;
 
-    @Column(name = "chunk_index")
+    @Column(name = "chunk_index", nullable = false)
     private Integer chunkIndex;
 
-    @Column(name = "content")
+    @Column(
+            name = "content",
+            nullable = false,
+            columnDefinition = "TEXT"
+    )
     private String content;
 
     @Column(name = "token_count")
@@ -40,7 +44,7 @@ public class DocumentChunks {
     @Column(name = "page_number")
     private Integer pageNumber;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @Version

@@ -27,20 +27,21 @@ public class ProcessingEvent {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "document_id")
+    @Column(name = "document_id", nullable = false)
     private UUID documentId;
 
-    @Column(name = "event_type")
     @Enumerated(EnumType.STRING)
+    @Column(name = "event_type", nullable = false, length = 30)
     private EventType eventType;
 
-    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 20)
     private EventStatus status;
 
-    @Column(name = "error_message")
+    @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "completed_at")
