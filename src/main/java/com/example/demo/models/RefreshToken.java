@@ -42,7 +42,7 @@ public class RefreshToken {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "expired_at", nullable = false)
+    @Column(name = "expires_at", nullable = false)
     private LocalDateTime expiredAt;
 
     @Version
