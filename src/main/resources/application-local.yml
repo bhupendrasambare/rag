@@ -1,6 +1,10 @@
 server:
     port: 8080
 spring:
+    security:
+        user:
+            name: admin
+            password: admin
     servlet:
         multipart:
             enabled: true
@@ -17,6 +21,9 @@ spring:
         properties:
             hibernate:
                 format_sql: true
+                highlight_sql: true
+                jdbc:
+                    time_zone: UTC
     flyway:
         enabled: true
         locations: classpath:db/migration
@@ -26,7 +33,7 @@ spring:
         ollama:
             base-url: http://localhost:11434
             chat:
-                model: mistral:7b
+                model: phi3:latest
             embedding:
                 model: nomic-embed-text
         vectorstore:

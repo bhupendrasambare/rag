@@ -1,0 +1,22 @@
+/**
+ * author @bhupendrasambare
+ * Date   :22/07/26
+ * Time   :8:16 pm
+ * Project:rag
+ **/
+package com.example.demo.config;
+
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class AiConfiguration {
+
+    @Bean
+    ChatClient chatClient(ChatModel chatModel){
+        return ChatClient.builder(chatModel).build();
+    }
+
+}
