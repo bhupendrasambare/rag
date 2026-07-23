@@ -36,6 +36,8 @@ spring:
                 model: phi3:latest
             embedding:
                 model: nomic-embed-text
+            init:
+                pull-model-strategy: never
         vectorstore:
             pgvector:
                 initialize-schema: false

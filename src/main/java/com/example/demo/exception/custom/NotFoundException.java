@@ -16,13 +16,11 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package com.example.demo.constants;
+package com.example.demo.exception.custom;
 
-public enum EventType {
-  UPLOAD,
-  PARSING,
-  CHUNKING,
-  EMBEDDING,
-  VECTOR_STORE,
-  COMPLETED
+public class NotFoundException extends RuntimeException {
+
+  public NotFoundException(String message) {
+    super(message);
+  }
 }

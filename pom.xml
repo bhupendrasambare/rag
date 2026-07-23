@@ -207,6 +207,56 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>com.mycila</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<version>4.6</version>
+
+				<configuration>
+
+					<header>${project.basedir}/fileheaders.txt</header>
+
+					<includes>
+						<include>src/main/java/**/*.java</include>
+						<include>src/test/java/**/*.java</include>
+					</includes>
+
+					<strictCheck>false</strictCheck>
+
+				</configuration>
+
+				<executions>
+					<execution>
+						<phase>process-sources</phase>
+						<goals>
+							<goal>format</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>com.diffplug.spotless</groupId>
+				<artifactId>spotless-maven-plugin</artifactId>
+				<version>2.46.1</version>
+
+				<configuration>
+					<java>
+						<googleJavaFormat/>
+						<removeUnusedImports/>
+						<trimTrailingWhitespace/>
+						<endWithNewline/>
+					</java>
+				</configuration>
+
+				<executions>
+					<execution>
+						<phase>process-sources</phase>
+						<goals>
+							<goal>apply</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 

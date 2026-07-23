@@ -16,13 +16,28 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package com.example.demo.constants;
+package com.example.demo.dto.response;
 
-public enum EventType {
-  UPLOAD,
-  PARSING,
-  CHUNKING,
-  EMBEDDING,
-  VECTOR_STORE,
-  COMPLETED
+import java.time.LocalDateTime;
+import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ApiResponse<T> {
+
+  private boolean success;
+
+  private String message;
+
+  private T data;
+
+  private Map<String, String> errors;
+
+  @Builder.Default private LocalDateTime timestamp = LocalDateTime.now();
 }
