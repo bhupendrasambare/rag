@@ -1,5 +1,6 @@
 server:
     port: 8080
+
 spring:
     security:
         user:
@@ -42,6 +43,13 @@ spring:
             pgvector:
                 initialize-schema: false
                 dimensions: 768
+
+application:
+        jwt:
+            secret: 7A72B82C2D5A58FBC6B1D3E0B85F4A7A52C5D7E2EAB36B7F4A6B5F8C9D2A7E3F
+            access-token-expiration: 900000
+            refresh-token-expiration: 604800000
+            issuer: rag-app
 
 management:
     endpoints:
