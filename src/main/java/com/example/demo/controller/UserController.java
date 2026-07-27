@@ -19,25 +19,36 @@
 package com.example.demo.controller;
 
 import com.example.demo.constants.Constants;
+import com.example.demo.dto.request.UpdateProfileRequest;
 import com.example.demo.dto.response.ApiResponse;
 import com.example.demo.dto.response.ApiResponses;
 import com.example.demo.dto.response.UserProfileResponse;
 import com.example.demo.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-@RestController
 @RequiredArgsConstructor
+@RestController
 @RequestMapping("/api/user")
 public class UserController {
 
   private final UserService userService;
 
+  @GetMapping("/profile")
   public ResponseEntity<ApiResponse<UserProfileResponse>> getProfile() {
+
+    return ResponseEntity.ok(
+        ApiResponses.success(Constants.FETCH_USER_PROFILE_SUCCESSFULLY, userService.getProfile()));
+  }
+
+  @PutMapping("/profile")
+  public ResponseEntity<ApiResponse<UserProfileResponse>> updateProfile(
+      @Valid @RequestBody UpdateProfileRequest request) {
+
     return ResponseEntity.ok(
         ApiResponses.success(
-            Constants.FETCH_USER_PROFILE_SUCCESSFULLY, this.userService.getProfile()));
+            Constants.UPDATE_USER_PROFILE_SUCCESSFULLY, userService.updateProfile(request)));
   }
 }

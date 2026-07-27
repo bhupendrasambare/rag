@@ -19,15 +19,19 @@
 package com.example.demo.controller;
 
 import com.example.demo.constants.Constants;
+import com.example.demo.dto.request.DocumentResponse;
+import com.example.demo.dto.request.DocumentStatusResponse;
 import com.example.demo.dto.request.UploadDocumentRequest;
 import com.example.demo.dto.response.ApiResponse;
 import com.example.demo.dto.response.ApiResponses;
 import com.example.demo.service.DocumentService;
+import jakarta.validation.Valid;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -36,7 +40,45 @@ public class DocumentController {
 
   private final DocumentService documentService;
 
-  public ResponseEntity<ApiResponse> uploadFile(@ModelAttribute UploadDocumentRequest request) {
-    return ResponseEntity.ok(ApiResponses.success(Constants.FETCH_USER_PROFILE_SUCCESSFULLY));
+  @PostMapping
+  public ResponseEntity<ApiResponse<DocumentResponse>> uploadFile(
+      @Valid @ModelAttribute UploadDocumentRequest request) {
+
+    return ResponseEntity.ok(
+        ApiResponses.success(
+            Constants.DOCUMENT_UPLOADED_SUCCESSFULLY, documentService.uploadFile(request)));
+  }
+
+  @GetMapping
+  public ResponseEntity<ApiResponse<Page<DocumentResponse>>> getDocuments(Pageable pageable) {
+
+    return ResponseEntity.ok(
+        ApiResponses.success(
+            Constants.FETCH_DOCUMENTS_SUCCESSFULLY, documentService.getDocuments(pageable)));
+  }
+
+  @GetMapping("/{id}")
+  public ResponseEntity<ApiResponse<DocumentResponse>> getDocument(@PathVariable UUID id) {
+
+    return ResponseEntity.ok(
+        ApiResponses.success(
+            Constants.FETCH_DOCUMENT_SUCCESSFULLY, documentService.getDocument(id)));
+  }
+
+  @GetMapping("/{id}/status")
+  public ResponseEntity<ApiResponse<DocumentStatusResponse>> getDocumentStatus(
+      @PathVariable UUID id) {
+
+    return ResponseEntity.ok(
+        ApiResponses.success(
+            Constants.FETCH_DOCUMENT_STATUS_SUCCESSFULLY, documentService.getDocumentStatus(id)));
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<ApiResponse<?>> deleteDocument(@PathVariable UUID id) {
+
+    documentService.deleteDocument(id);
+
+    return ResponseEntity.ok(ApiResponses.success(Constants.DELETE_DOCUMENT_SUCCESSFULLY));
   }
 }

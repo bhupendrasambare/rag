@@ -26,4 +26,11 @@ public class Constants {
   public static final String LOGIN_SUCCESSFULLY = "Login successfully";
   public static final String REFRESH_TOKEN_SUCCESSFULLY = "Refresh token successfully";
   public static final String LOGOUT_SUCCESSFULLY = "Logout successfully";
+  public static final String UPDATE_USER_PROFILE_SUCCESSFULLY = "Update user profile successfully";
+  public static final String DOCUMENT_UPLOADED_SUCCESSFULLY = "Document uploaded successfully";
+  public static final String FETCH_DOCUMENTS_SUCCESSFULLY = "Fetch document successfully";
+  public static final String FETCH_DOCUMENT_SUCCESSFULLY = "Fetch document successfully";
+  public static final String FETCH_DOCUMENT_STATUS_SUCCESSFULLY =
+      "Fetch document status successfully";
+  public static final String DELETE_DOCUMENT_SUCCESSFULLY = "Deleted document successfully";
 }

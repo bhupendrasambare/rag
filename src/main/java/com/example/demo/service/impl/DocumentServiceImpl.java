@@ -18,12 +18,40 @@
  */
 package com.example.demo.service.impl;
 
+import com.example.demo.dto.request.DocumentResponse;
+import com.example.demo.dto.request.DocumentStatusResponse;
 import com.example.demo.dto.request.UploadDocumentRequest;
 import com.example.demo.service.DocumentService;
+import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
 public class DocumentServiceImpl implements DocumentService {
   @Override
   public void uploadDocument(UploadDocumentRequest request) {}
+
+  @Override
+  public DocumentResponse uploadFile(UploadDocumentRequest request) {
+    return null;
+  }
+
+  @Override
+  public Page<DocumentResponse> getDocuments(Pageable pageable) {
+    return null;
+  }
+
+  @Override
+  public DocumentResponse getDocument(UUID id) {
+    return null;
+  }
+
+  @Override
+  public DocumentStatusResponse getDocumentStatus(UUID id) {
+    return null;
+  }
+
+  @Override
+  public void deleteDocument(UUID id) {}
 }

@@ -18,9 +18,24 @@
  */
 package com.example.demo.service;
 
+import com.example.demo.dto.request.DocumentResponse;
+import com.example.demo.dto.request.DocumentStatusResponse;
 import com.example.demo.dto.request.UploadDocumentRequest;
+import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface DocumentService {
 
   public void uploadDocument(UploadDocumentRequest request);
+
+  DocumentResponse uploadFile(UploadDocumentRequest request);
+
+  Page<DocumentResponse> getDocuments(Pageable pageable);
+
+  DocumentResponse getDocument(UUID id);
+
+  DocumentStatusResponse getDocumentStatus(UUID id);
+
+  void deleteDocument(UUID id);
 }
