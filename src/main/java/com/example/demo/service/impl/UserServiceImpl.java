@@ -18,8 +18,20 @@
  */
 package com.example.demo.service.impl;
 
+import com.example.demo.dto.request.UpdateProfileRequest;
+import com.example.demo.dto.response.UserProfileResponse;
 import com.example.demo.service.UserService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserServiceImpl implements UserService {}
+public class UserServiceImpl implements UserService {
+  @Override
+  public UserProfileResponse getProfile() {
+    return null;
+  }
+
+  @Override
+  public UserProfileResponse updateProfile(UpdateProfileRequest request) {
+    return null;
+  }
+}

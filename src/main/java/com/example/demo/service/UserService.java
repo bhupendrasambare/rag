@@ -18,4 +18,12 @@
  */
 package com.example.demo.service;
 
-public interface UserService {}
+import com.example.demo.dto.request.UpdateProfileRequest;
+import com.example.demo.dto.response.UserProfileResponse;
+
+public interface UserService {
+
+  UserProfileResponse getProfile();
+
+  UserProfileResponse updateProfile(UpdateProfileRequest request);
+}

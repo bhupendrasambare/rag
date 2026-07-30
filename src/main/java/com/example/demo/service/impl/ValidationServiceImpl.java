@@ -18,32 +18,18 @@
  */
 package com.example.demo.service.impl;
 
-import com.example.demo.dto.request.LoginRequest;
-import com.example.demo.dto.request.RefreshTokenRequest;
-import com.example.demo.dto.request.SignupRequest;
-import com.example.demo.dto.response.LoginResponse;
-import com.example.demo.service.AuthService;
-import lombok.RequiredArgsConstructor;
+import com.example.demo.service.ValidationService;
+import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
-public class AuthServiceImpl implements AuthService {
+public class ValidationServiceImpl implements ValidationService {
   @Override
-  public LoginResponse signUp(SignupRequest request) {
-    return null;
-  }
+  public void validateUniqueEmail(String email, UUID userId) {}
 
   @Override
-  public LoginResponse login(LoginRequest request) {
-    return null;
-  }
+  public void validatePassword(String password, String confirmPassword) {}
 
   @Override
-  public LoginResponse refreshToken(RefreshTokenRequest request) {
-    return null;
-  }
-
-  @Override
-  public void logout(String refreshToken) {}
+  public void validateRefreshToken(String refreshToken, UUID userId) {}
 }

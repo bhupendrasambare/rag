@@ -18,18 +18,13 @@
  */
 package com.example.demo.service;
 
-import com.example.demo.dto.request.LoginRequest;
-import com.example.demo.dto.request.RefreshTokenRequest;
-import com.example.demo.dto.request.SignupRequest;
-import com.example.demo.dto.response.LoginResponse;
+import java.util.UUID;
 
-public interface AuthService {
+public interface ValidationService {
 
-  LoginResponse signUp(SignupRequest request);
+  void validateUniqueEmail(String email, UUID userId);
 
-  LoginResponse login(LoginRequest request);
+  void validatePassword(String password, String confirmPassword);
 
-  LoginResponse refreshToken(RefreshTokenRequest request);
-
-  void logout(String refreshToken);
+  void validateRefreshToken(String refreshToken, UUID userId);
 }
