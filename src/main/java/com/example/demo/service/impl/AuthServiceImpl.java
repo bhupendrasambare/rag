@@ -18,32 +18,144 @@
  */
 package com.example.demo.service.impl;
 
+import com.example.demo.constants.UserRole;
 import com.example.demo.dto.request.LoginRequest;
 import com.example.demo.dto.request.RefreshTokenRequest;
 import com.example.demo.dto.request.SignupRequest;
 import com.example.demo.dto.response.LoginResponse;
+import com.example.demo.exception.custom.BusinessException;
+import com.example.demo.jwt.JwtService;
+import com.example.demo.mapper.UserMapper;
+import com.example.demo.models.RefreshToken;
+import com.example.demo.models.UserInfo;
+import com.example.demo.repository.RefreshTokenRepository;
+import com.example.demo.repository.UserInfoRepository;
 import com.example.demo.service.AuthService;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
+
+  private final UserInfoRepository userRepository;
+  private final RefreshTokenRepository refreshTokenRepository;
+  private final PasswordEncoder passwordEncoder;
+  private final JwtService jwtService;
+  private final AuthenticationManager authenticationManager;
+  private final UserMapper userMapper;
+
   @Override
   public LoginResponse signUp(SignupRequest request) {
-    return null;
+
+    if (userRepository.existsByEmail(request.getEmail())) {
+      throw new BusinessException("Email already registered.");
+    }
+
+    UserInfo user = new UserInfo();
+
+    user.setFirstName(request.getFirstName());
+    user.setLastName(request.getLastName());
+    user.setEmail(request.getEmail());
+    user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+    user.setRole(UserRole.USER);
+    user.setActive(true);
+
+    user = userRepository.save(user);
+
+    String accessToken = jwtService.generateAccessToken(user);
+    String refreshToken = jwtService.generateRefreshToken(user);
+
+    saveRefreshToken(user, refreshToken);
+
+    return buildLoginResponse(user, accessToken, refreshToken);
   }
 
   @Override
   public LoginResponse login(LoginRequest request) {
-    return null;
+
+    authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(
+                    request.getEmail(),
+                    request.getPassword()));
+
+    UserInfo user = userRepository.findByEmail(request.getEmail())
+            .orElseThrow(() -> new BusinessException("Invalid credentials."));
+
+    refreshTokenRepository.deleteByUserId(user.getId());
+
+    String accessToken = jwtService.generateAccessToken(user);
+    String refreshToken = jwtService.generateRefreshToken(user);
+
+    saveRefreshToken(user, refreshToken);
+
+    return buildLoginResponse(user, accessToken, refreshToken);
   }
 
   @Override
   public LoginResponse refreshToken(RefreshTokenRequest request) {
-    return null;
+
+    RefreshToken token = refreshTokenRepository.findByToken(request.getRefreshToken())
+            .orElseThrow(() -> new BusinessException("Refresh token not found."));
+
+    if (Boolean.TRUE.equals(token.getRevoked())) {
+      throw new BusinessException("Refresh token revoked.");
+    }
+
+    if (token.getExpiredAt().isBefore(LocalDateTime.now())) {
+      throw new BusinessException("Refresh token expired.");
+    }
+
+    UserInfo user = userRepository.findById(token.getUserId())
+            .orElseThrow(() -> new BusinessException("User not found."));
+
+    refreshTokenRepository.deleteByToken(token.getToken());
+
+    String accessToken = jwtService.generateAccessToken(user);
+    String refreshToken = jwtService.generateRefreshToken(user);
+
+    saveRefreshToken(user, refreshToken);
+
+    return buildLoginResponse(user, accessToken, refreshToken);
   }
 
   @Override
-  public void logout(String refreshToken) {}
+  public void logout(String refreshToken) {
+
+    refreshTokenRepository.findByToken(refreshToken)
+            .ifPresent(token -> {
+              token.setRevoked(true);
+              refreshTokenRepository.save(token);
+            });
+  }
+
+  private void saveRefreshToken(UserInfo user, String token) {
+
+    RefreshToken refreshToken = new RefreshToken();
+
+    refreshToken.setUserId(user.getId());
+    refreshToken.setToken(token);
+    refreshToken.setRevoked(false);
+    refreshToken.setCreatedAt(LocalDateTime.now());
+    refreshToken.setExpiredAt(LocalDateTime.now().plusDays(7));
+
+    refreshTokenRepository.save(refreshToken);
+  }
+
+  private LoginResponse buildLoginResponse(
+          UserInfo user,
+          String accessToken,
+          String refreshToken) {
+
+    return LoginResponse.builder()
+            .accessToken(accessToken)
+            .refreshToken(refreshToken)
+            .expiresIn(jwtService.getAccessTokenExpiration())
+            .user(userMapper.toUserResponse(user))
+            .build();
+  }
 }
