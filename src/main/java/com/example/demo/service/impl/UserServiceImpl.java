@@ -20,18 +20,55 @@ package com.example.demo.service.impl;
 
 import com.example.demo.dto.request.UpdateProfileRequest;
 import com.example.demo.dto.response.UserProfileResponse;
+import com.example.demo.exception.custom.NotFoundException;
+import com.example.demo.mapper.UserMapper;
+import com.example.demo.models.UserInfo;
+import com.example.demo.repository.UserInfoRepository;
 import com.example.demo.service.UserService;
+import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+
+  private final UserInfoRepository userRepository;
+  private final UserMapper userMapper;
+
   @Override
   public UserProfileResponse getProfile() {
-    return null;
+
+    UserInfo user = getCurrentUser();
+
+    return userMapper.toProfileResponse(user);
   }
 
   @Override
   public UserProfileResponse updateProfile(UpdateProfileRequest request) {
-    return null;
+
+    UserInfo user = getCurrentUser();
+
+    user.setFirstName(request.getFirstName());
+    user.setLastName(request.getLastName());
+    user.setProfileImage(request.getProfileImage());
+
+    user = userRepository.save(user);
+
+    return userMapper.toProfileResponse(user);
+  }
+
+  private UserInfo getCurrentUser() {
+
+    Authentication authentication =
+            SecurityContextHolder.getContext().getAuthentication();
+
+    String email = authentication.getName();
+
+    return userRepository.findByEmail(email)
+            .orElseThrow(() ->
+                    new NotFoundException("Authenticated user not found."));
   }
 }
