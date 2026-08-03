@@ -25,7 +25,6 @@ import com.example.demo.mapper.UserMapper;
 import com.example.demo.models.UserInfo;
 import com.example.demo.repository.UserInfoRepository;
 import com.example.demo.service.UserService;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -62,13 +61,12 @@ public class UserServiceImpl implements UserService {
 
   private UserInfo getCurrentUser() {
 
-    Authentication authentication =
-            SecurityContextHolder.getContext().getAuthentication();
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
     String email = authentication.getName();
 
-    return userRepository.findByEmail(email)
-            .orElseThrow(() ->
-                    new NotFoundException("Authenticated user not found."));
+    return userRepository
+        .findByEmail(email)
+        .orElseThrow(() -> new NotFoundException("Authenticated user not found."));
   }
 }

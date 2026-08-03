@@ -79,11 +79,11 @@ public class AuthServiceImpl implements AuthService {
   public LoginResponse login(LoginRequest request) {
 
     authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                    request.getEmail(),
-                    request.getPassword()));
+        new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
-    UserInfo user = userRepository.findByEmail(request.getEmail())
+    UserInfo user =
+        userRepository
+            .findByEmail(request.getEmail())
             .orElseThrow(() -> new BusinessException("Invalid credentials."));
 
     refreshTokenRepository.deleteByUserId(user.getId());
@@ -99,7 +99,9 @@ public class AuthServiceImpl implements AuthService {
   @Override
   public LoginResponse refreshToken(RefreshTokenRequest request) {
 
-    RefreshToken token = refreshTokenRepository.findByToken(request.getRefreshToken())
+    RefreshToken token =
+        refreshTokenRepository
+            .findByToken(request.getRefreshToken())
             .orElseThrow(() -> new BusinessException("Refresh token not found."));
 
     if (Boolean.TRUE.equals(token.getRevoked())) {
@@ -110,7 +112,9 @@ public class AuthServiceImpl implements AuthService {
       throw new BusinessException("Refresh token expired.");
     }
 
-    UserInfo user = userRepository.findById(token.getUserId())
+    UserInfo user =
+        userRepository
+            .findById(token.getUserId())
             .orElseThrow(() -> new BusinessException("User not found."));
 
     refreshTokenRepository.deleteByToken(token.getToken());
@@ -126,8 +130,10 @@ public class AuthServiceImpl implements AuthService {
   @Override
   public void logout(String refreshToken) {
 
-    refreshTokenRepository.findByToken(refreshToken)
-            .ifPresent(token -> {
+    refreshTokenRepository
+        .findByToken(refreshToken)
+        .ifPresent(
+            token -> {
               token.setRevoked(true);
               refreshTokenRepository.save(token);
             });
@@ -146,16 +152,13 @@ public class AuthServiceImpl implements AuthService {
     refreshTokenRepository.save(refreshToken);
   }
 
-  private LoginResponse buildLoginResponse(
-          UserInfo user,
-          String accessToken,
-          String refreshToken) {
+  private LoginResponse buildLoginResponse(UserInfo user, String accessToken, String refreshToken) {
 
     return LoginResponse.builder()
-            .accessToken(accessToken)
-            .refreshToken(refreshToken)
-            .expiresIn(jwtService.getAccessTokenExpiration())
-            .user(userMapper.toUserResponse(user))
-            .build();
+        .accessToken(accessToken)
+        .refreshToken(refreshToken)
+        .expiresIn(jwtService.getAccessTokenExpiration())
+        .user(userMapper.toUserResponse(user))
+        .build();
   }
 }
