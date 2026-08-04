@@ -18,4 +18,45 @@
  */
 package com.example.demo.mapper;
 
-public class UserMapper {}
+import com.example.demo.dto.response.UserProfileResponse;
+import com.example.demo.dto.response.UserResponse;
+import com.example.demo.models.UserInfo;
+import org.springframework.stereotype.Component;
+
+@Component
+public class UserMapper {
+
+  public UserResponse toUserResponse(UserInfo user) {
+
+    if (user == null) {
+      return null;
+    }
+
+    return UserResponse.builder()
+        .id(user.getId())
+        .firstName(user.getFirstName())
+        .lastName(user.getLastName())
+        .email(user.getEmail())
+        .profileImage(user.getProfileImage())
+        .role(user.getRole())
+        .build();
+  }
+
+  public UserProfileResponse toProfileResponse(UserInfo user) {
+
+    if (user == null) {
+      return null;
+    }
+
+    return UserProfileResponse.builder()
+        .id(user.getId())
+        .firstName(user.getFirstName())
+        .lastName(user.getLastName())
+        .email(user.getEmail())
+        .profileImage(user.getProfileImage())
+        .role(user.getRole())
+        .active(user.getActive())
+        .createdAt(user.getCreatedAt())
+        .build();
+  }
+}

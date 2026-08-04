@@ -22,6 +22,7 @@ import com.example.demo.constants.UserRole;
 import com.example.demo.dto.request.LoginRequest;
 import com.example.demo.dto.request.RefreshTokenRequest;
 import com.example.demo.dto.request.SignupRequest;
+import com.example.demo.dto.response.CustomUserDetails;
 import com.example.demo.dto.response.LoginResponse;
 import com.example.demo.exception.custom.BusinessException;
 import com.example.demo.jwt.JwtService;
@@ -52,7 +53,7 @@ public class AuthServiceImpl implements AuthService {
   @Override
   public LoginResponse signUp(SignupRequest request) {
 
-    if (userRepository.existsByEmail(request.getEmail())) {
+    if (this.userRepository.existsByEmail(request.getEmail())) {
       throw new BusinessException("Email already registered.");
     }
 
@@ -61,14 +62,14 @@ public class AuthServiceImpl implements AuthService {
     user.setFirstName(request.getFirstName());
     user.setLastName(request.getLastName());
     user.setEmail(request.getEmail());
-    user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+    user.setPasswordHash(this.passwordEncoder.encode(request.getPassword()));
     user.setRole(UserRole.USER);
     user.setActive(true);
 
-    user = userRepository.save(user);
-
-    String accessToken = jwtService.generateAccessToken(user);
-    String refreshToken = jwtService.generateRefreshToken(user);
+    user = this.userRepository.save(user);
+    CustomUserDetails customUserDetails = new CustomUserDetails(user);
+    String accessToken = this.jwtService.generateAccessToken(customUserDetails);
+    String refreshToken = this.jwtService.generateRefreshToken(customUserDetails);
 
     saveRefreshToken(user, refreshToken);
 
@@ -78,18 +79,18 @@ public class AuthServiceImpl implements AuthService {
   @Override
   public LoginResponse login(LoginRequest request) {
 
-    authenticationManager.authenticate(
+    this.authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
     UserInfo user =
-        userRepository
+        this.userRepository
             .findByEmail(request.getEmail())
             .orElseThrow(() -> new BusinessException("Invalid credentials."));
 
-    refreshTokenRepository.deleteByUserId(user.getId());
-
-    String accessToken = jwtService.generateAccessToken(user);
-    String refreshToken = jwtService.generateRefreshToken(user);
+    this.refreshTokenRepository.deleteByUserId(user.getId());
+    CustomUserDetails customUserDetails = new CustomUserDetails(user);
+    String accessToken = this.jwtService.generateAccessToken(customUserDetails);
+    String refreshToken = this.jwtService.generateRefreshToken(customUserDetails);
 
     saveRefreshToken(user, refreshToken);
 
@@ -100,7 +101,7 @@ public class AuthServiceImpl implements AuthService {
   public LoginResponse refreshToken(RefreshTokenRequest request) {
 
     RefreshToken token =
-        refreshTokenRepository
+        this.refreshTokenRepository
             .findByToken(request.getRefreshToken())
             .orElseThrow(() -> new BusinessException("Refresh token not found."));
 
@@ -113,14 +114,14 @@ public class AuthServiceImpl implements AuthService {
     }
 
     UserInfo user =
-        userRepository
+        this.userRepository
             .findById(token.getUserId())
             .orElseThrow(() -> new BusinessException("User not found."));
 
-    refreshTokenRepository.deleteByToken(token.getToken());
-
-    String accessToken = jwtService.generateAccessToken(user);
-    String refreshToken = jwtService.generateRefreshToken(user);
+    this.refreshTokenRepository.deleteByToken(token.getToken());
+    CustomUserDetails customUserDetails = new CustomUserDetails(user);
+    String accessToken = this.jwtService.generateAccessToken(customUserDetails);
+    String refreshToken = this.jwtService.generateRefreshToken(customUserDetails);
 
     saveRefreshToken(user, refreshToken);
 
@@ -130,12 +131,12 @@ public class AuthServiceImpl implements AuthService {
   @Override
   public void logout(String refreshToken) {
 
-    refreshTokenRepository
+    this.refreshTokenRepository
         .findByToken(refreshToken)
         .ifPresent(
             token -> {
               token.setRevoked(true);
-              refreshTokenRepository.save(token);
+              this.refreshTokenRepository.save(token);
             });
   }
 
@@ -149,7 +150,7 @@ public class AuthServiceImpl implements AuthService {
     refreshToken.setCreatedAt(LocalDateTime.now());
     refreshToken.setExpiredAt(LocalDateTime.now().plusDays(7));
 
-    refreshTokenRepository.save(refreshToken);
+    this.refreshTokenRepository.save(refreshToken);
   }
 
   private LoginResponse buildLoginResponse(UserInfo user, String accessToken, String refreshToken) {
@@ -157,8 +158,8 @@ public class AuthServiceImpl implements AuthService {
     return LoginResponse.builder()
         .accessToken(accessToken)
         .refreshToken(refreshToken)
-        .expiresIn(jwtService.getAccessTokenExpiration())
-        .user(userMapper.toUserResponse(user))
+        .expiresIn(this.jwtService.getAccessTokenExpiration())
+        .user(this.userMapper.toUserResponse(user))
         .build();
   }
 }

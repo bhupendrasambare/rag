@@ -117,4 +117,12 @@ public class JwtService {
 
     return extractClaims(token).get("uid", String.class);
   }
+
+  public long getAccessTokenExpiration() {
+    return this.properties.getAccessTokenExpiration();
+  }
+
+  public long getRefreshTokenExpiration() {
+    return this.properties.getRefreshTokenExpiration();
+  }
 }

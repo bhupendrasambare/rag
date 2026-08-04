@@ -28,4 +28,6 @@ import org.springframework.stereotype.Repository;
 public interface UserInfoRepository extends JpaRepository<UserInfo, UUID> {
 
   Optional<UserInfo> findByEmail(String email);
+
+  boolean existsByEmail(String email);
 }

@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
 
     UserInfo user = getCurrentUser();
 
-    return userMapper.toProfileResponse(user);
+    return this.userMapper.toProfileResponse(user);
   }
 
   @Override
@@ -54,9 +54,9 @@ public class UserServiceImpl implements UserService {
     user.setLastName(request.getLastName());
     user.setProfileImage(request.getProfileImage());
 
-    user = userRepository.save(user);
+    user = this.userRepository.save(user);
 
-    return userMapper.toProfileResponse(user);
+    return this.userMapper.toProfileResponse(user);
   }
 
   private UserInfo getCurrentUser() {
@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
 
     String email = authentication.getName();
 
-    return userRepository
+    return this.userRepository
         .findByEmail(email)
         .orElseThrow(() -> new NotFoundException("Authenticated user not found."));
   }
