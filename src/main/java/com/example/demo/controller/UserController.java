@@ -18,8 +18,13 @@
  */
 package com.example.demo.controller;
 
+import com.example.demo.constants.Constants;
+import com.example.demo.dto.response.ApiResponse;
+import com.example.demo.dto.response.ApiResponses;
+import com.example.demo.dto.response.UserProfileResponse;
 import com.example.demo.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,4 +34,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
   private final UserService userService;
+
+  public ResponseEntity<ApiResponse<UserProfileResponse>> getProfile(){
+      return ResponseEntity.ok(ApiResponses.success(Constants.FETCH_USER_PROFILE_SUCCESSFULLY,this.userService.getProfile()));
+  }
+
+
 }

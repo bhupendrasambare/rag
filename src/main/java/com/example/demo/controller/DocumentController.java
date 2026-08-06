@@ -18,4 +18,17 @@
  */
 package com.example.demo.controller;
 
-public class DocumentController {}
+import com.example.demo.service.DocumentService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RequiredArgsConstructor
+@RestController
+@RequestMapping("/api/document")
+public class DocumentController {
+
+    private final DocumentService documentService;
+
+
+}
