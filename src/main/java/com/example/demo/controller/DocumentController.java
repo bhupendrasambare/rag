@@ -28,7 +28,5 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/document")
 public class DocumentController {
 
-    private final DocumentService documentService;
-
-
+  private final DocumentService documentService;
 }

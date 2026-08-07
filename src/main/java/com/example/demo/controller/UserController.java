@@ -35,9 +35,9 @@ public class UserController {
 
   private final UserService userService;
 
-  public ResponseEntity<ApiResponse<UserProfileResponse>> getProfile(){
-      return ResponseEntity.ok(ApiResponses.success(Constants.FETCH_USER_PROFILE_SUCCESSFULLY,this.userService.getProfile()));
+  public ResponseEntity<ApiResponse<UserProfileResponse>> getProfile() {
+    return ResponseEntity.ok(
+        ApiResponses.success(
+            Constants.FETCH_USER_PROFILE_SUCCESSFULLY, this.userService.getProfile()));
   }
-
-
 }
