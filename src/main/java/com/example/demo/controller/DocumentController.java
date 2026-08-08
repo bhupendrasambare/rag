@@ -18,8 +18,14 @@
  */
 package com.example.demo.controller;
 
+import com.example.demo.constants.Constants;
+import com.example.demo.dto.request.UploadDocumentRequest;
+import com.example.demo.dto.response.ApiResponse;
+import com.example.demo.dto.response.ApiResponses;
 import com.example.demo.service.DocumentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,4 +35,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class DocumentController {
 
   private final DocumentService documentService;
+
+  public ResponseEntity<ApiResponse> uploadFile(@ModelAttribute UploadDocumentRequest request) {
+    return ResponseEntity.ok(ApiResponses.success(Constants.FETCH_USER_PROFILE_SUCCESSFULLY));
+  }
 }
