@@ -18,4 +18,10 @@
  */
 package com.example.demo.service;
 
-public interface DocumentService {}
+import com.example.demo.dto.request.UploadDocumentRequest;
+
+public interface DocumentService {
+
+    public void uploadDocument(UploadDocumentRequest request);
+
+}
