@@ -22,4 +22,8 @@ public class Constants {
 
   public static final String FETCH_USER_PROFILE_SUCCESSFULLY = "Fetch user profile successfully";
   public static final String FETCH_USER_PROFILE_FAILED = "Fetch user profile successfully";
+  public static final String SETUP_SUCCESSFULLY = "Setup successfully";
+  public static final String LOGIN_SUCCESSFULLY = "Login successfully";
+  public static final String REFRESH_TOKEN_SUCCESSFULLY = "Refresh token successfully";
+  public static final String LOGOUT_SUCCESSFULLY = "Logout successfully";
 }

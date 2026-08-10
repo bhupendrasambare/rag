@@ -18,8 +18,12 @@
  */
 package com.example.demo.service.impl;
 
+import com.example.demo.dto.request.UploadDocumentRequest;
 import com.example.demo.service.DocumentService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class DocumentServiceImpl implements DocumentService {}
+public class DocumentServiceImpl implements DocumentService {
+  @Override
+  public void uploadDocument(UploadDocumentRequest request) {}
+}

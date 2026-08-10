@@ -22,6 +22,5 @@ import com.example.demo.dto.request.UploadDocumentRequest;
 
 public interface DocumentService {
 
-    public void uploadDocument(UploadDocumentRequest request);
-
+  public void uploadDocument(UploadDocumentRequest request);
 }
