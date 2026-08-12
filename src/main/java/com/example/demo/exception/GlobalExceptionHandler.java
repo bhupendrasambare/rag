@@ -20,9 +20,7 @@ package com.example.demo.exception;
 
 import com.example.demo.dto.response.ApiResponse;
 import com.example.demo.dto.response.ApiResponses;
-import com.example.demo.exception.custom.BusinessException;
-import com.example.demo.exception.custom.NotFoundException;
-import com.example.demo.exception.custom.ValidationException;
+import com.example.demo.exception.custom.BaseException;
 import jakarta.validation.ConstraintViolationException;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,26 +34,21 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-  @ExceptionHandler(NotFoundException.class)
-  public ResponseEntity<ApiResponse<Object>> handelNotFound(NotFoundException ex) {
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponses.failure(ex.getMessage()));
-  }
+  @ExceptionHandler(BaseException.class)
+  public ResponseEntity<ApiResponse<Object>> handleBaseException(BaseException ex) {
 
-  @ExceptionHandler(BusinessException.class)
-  public ResponseEntity<ApiResponse<Object>> handleBusiness(BusinessException ex) {
+    HttpStatus status = resolveHttpStatus(ex.getErrorCode());
 
-    return ResponseEntity.badRequest().body(ApiResponses.failure(ex.getMessage()));
-  }
-
-  @ExceptionHandler(ValidationException.class)
-  public ResponseEntity<ApiResponse<Object>> handleValidation(ValidationException ex) {
-
-    return ResponseEntity.badRequest().body(ApiResponses.failure(ex.getMessage()));
+    return ResponseEntity.status(status)
+            .body(
+                    ApiResponses.failure(
+                            ex.getErrorCode(),
+                            ex.getMessage()));
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ApiResponse<Object>> handleMethodValidation(
-      MethodArgumentNotValidException ex) {
+          MethodArgumentNotValidException ex) {
 
     Map<String, String> errors = new HashMap<>();
 
@@ -63,18 +56,33 @@ public class GlobalExceptionHandler {
       errors.put(fieldError.getField(), fieldError.getDefaultMessage());
     }
 
-    return ResponseEntity.badRequest().body(ApiResponses.validation("Validation failed", errors));
+    return ResponseEntity.badRequest()
+            .body(
+                    ApiResponses.validation(
+                            ErrorCode.VALIDATION_ERROR,
+                            "Validation failed",
+                            errors));
   }
 
   @ExceptionHandler(ConstraintViolationException.class)
-  public ResponseEntity<ApiResponse<Object>> handleConstraint(ConstraintViolationException ex) {
+  public ResponseEntity<ApiResponse<Object>> handleConstraint(
+          ConstraintViolationException ex) {
 
     Map<String, String> errors = new HashMap<>();
 
     ex.getConstraintViolations()
-        .forEach(v -> errors.put(v.getPropertyPath().toString(), v.getMessage()));
+            .forEach(
+                    violation ->
+                            errors.put(
+                                    violation.getPropertyPath().toString(),
+                                    violation.getMessage()));
 
-    return ResponseEntity.badRequest().body(ApiResponses.validation("Validation failed", errors));
+    return ResponseEntity.badRequest()
+            .body(
+                    ApiResponses.validation(
+                            ErrorCode.VALIDATION_ERROR,
+                            "Validation failed",
+                            errors));
   }
 
   @ExceptionHandler(Exception.class)
@@ -83,6 +91,40 @@ public class GlobalExceptionHandler {
     ex.printStackTrace();
 
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body(ApiResponses.failure("Something went wrong."));
+            .body(
+                    ApiResponses.failure(
+                            ErrorCode.INTERNAL_SERVER_ERROR,
+                            "Something went wrong."));
+  }
+
+  private HttpStatus resolveHttpStatus(ErrorCode errorCode) {
+
+    return switch (errorCode) {
+
+      case INVALID_CREDENTIALS,
+              REFRESH_TOKEN_INVALID,
+              INVALID_TOKEN,
+              TOKEN_EXPIRED ->
+              HttpStatus.UNAUTHORIZED;
+
+      case UNAUTHORIZED ->
+              HttpStatus.UNAUTHORIZED;
+
+      case ACCESS_DENIED ->
+              HttpStatus.FORBIDDEN;
+
+      case USER_NOT_FOUND,
+              DOCUMENT_NOT_FOUND ->
+              HttpStatus.NOT_FOUND;
+
+      case USER_ALREADY_EXISTS ->
+              HttpStatus.CONFLICT;
+
+      case VALIDATION_ERROR ->
+              HttpStatus.BAD_REQUEST;
+
+      default ->
+              HttpStatus.BAD_REQUEST;
+    };
   }
 }

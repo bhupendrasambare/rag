@@ -18,9 +18,11 @@
  */
 package com.example.demo.exception.custom;
 
-public class NotFoundException extends RuntimeException {
+import com.example.demo.exception.ErrorCode;
 
-  public NotFoundException(String message) {
-    super(message);
-  }
+public class InvalidCredentialsException extends BaseException {
+
+    public InvalidCredentialsException() {
+        super(ErrorCode.INVALID_CREDENTIALS, "Invalid credentials");
+    }
 }

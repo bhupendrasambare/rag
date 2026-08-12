@@ -18,8 +18,11 @@
  */
 package com.example.demo.exception.custom;
 
-public class BusinessException extends RuntimeException {
-  public BusinessException(String message) {
-    super(message);
-  }
+import com.example.demo.exception.ErrorCode;
+
+public class RefreshTokenNotFoundException extends BaseException {
+
+    public RefreshTokenNotFoundException() {
+        super(ErrorCode.REFRESH_TOKEN_NOT_FOUND, "Refresh token not found.");
+    }
 }

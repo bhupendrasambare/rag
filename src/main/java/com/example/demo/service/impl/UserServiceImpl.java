@@ -20,7 +20,6 @@ package com.example.demo.service.impl;
 
 import com.example.demo.dto.request.UpdateProfileRequest;
 import com.example.demo.dto.response.UserProfileResponse;
-import com.example.demo.exception.custom.NotFoundException;
 import com.example.demo.mapper.UserMapper;
 import com.example.demo.models.UserInfo;
 import com.example.demo.repository.UserInfoRepository;

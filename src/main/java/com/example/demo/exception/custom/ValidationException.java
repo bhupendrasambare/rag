@@ -18,8 +18,15 @@
  */
 package com.example.demo.exception.custom;
 
-public class ValidationException extends RuntimeException {
+import com.example.demo.exception.ErrorCode;
+
+public class ValidationException extends BaseException {
+
   public ValidationException(String message) {
-    super(message);
+    super(ErrorCode.VALIDATION_ERROR, message);
+  }
+
+  public ValidationException(ErrorCode errorCode, String message) {
+    super(errorCode, message);
   }
 }

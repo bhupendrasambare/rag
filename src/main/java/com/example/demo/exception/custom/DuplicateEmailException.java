@@ -18,4 +18,11 @@
  */
 package com.example.demo.exception.custom;
 
-public class MethodArgumentNotValidException {}
+import com.example.demo.exception.ErrorCode;
+
+public class DuplicateEmailException extends BaseException {
+
+    public DuplicateEmailException() {
+        super(ErrorCode.DUPLICATE_EMAIL, "Email address is already registered.");
+    }
+}

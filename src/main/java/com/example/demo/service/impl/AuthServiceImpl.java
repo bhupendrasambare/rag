@@ -24,7 +24,7 @@ import com.example.demo.dto.request.RefreshTokenRequest;
 import com.example.demo.dto.request.SignupRequest;
 import com.example.demo.dto.response.CustomUserDetails;
 import com.example.demo.dto.response.LoginResponse;
-import com.example.demo.exception.custom.BusinessException;
+import com.example.demo.exception.custom.*;
 import com.example.demo.jwt.JwtService;
 import com.example.demo.mapper.UserMapper;
 import com.example.demo.models.RefreshToken;
@@ -33,6 +33,7 @@ import com.example.demo.repository.RefreshTokenRepository;
 import com.example.demo.repository.UserInfoRepository;
 import com.example.demo.service.AuthService;
 import java.time.LocalDateTime;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -54,7 +55,7 @@ public class AuthServiceImpl implements AuthService {
   public LoginResponse signUp(SignupRequest request) {
 
     if (this.userRepository.existsByEmail(request.getEmail())) {
-      throw new BusinessException("Email already registered.");
+      throw new DuplicateEmailException();
     }
 
     UserInfo user = new UserInfo();
@@ -85,7 +86,7 @@ public class AuthServiceImpl implements AuthService {
     UserInfo user =
         this.userRepository
             .findByEmail(request.getEmail())
-            .orElseThrow(() -> new BusinessException("Invalid credentials."));
+            .orElseThrow(() -> new InvalidCredentialsException());
 
     this.refreshTokenRepository.deleteByUserId(user.getId());
     CustomUserDetails customUserDetails = new CustomUserDetails(user);
@@ -103,20 +104,20 @@ public class AuthServiceImpl implements AuthService {
     RefreshToken token =
         this.refreshTokenRepository
             .findByToken(request.getRefreshToken())
-            .orElseThrow(() -> new BusinessException("Refresh token not found."));
+            .orElseThrow(RefreshTokenNotFoundException::new);
 
     if (Boolean.TRUE.equals(token.getRevoked())) {
-      throw new BusinessException("Refresh token revoked.");
+      throw new RefreshTokenRevokedException();
     }
 
     if (token.getExpiredAt().isBefore(LocalDateTime.now())) {
-      throw new BusinessException("Refresh token expired.");
+      throw new RefreshTokenExpiredException();
     }
 
     UserInfo user =
         this.userRepository
             .findById(token.getUserId())
-            .orElseThrow(() -> new BusinessException("User not found."));
+            .orElseThrow(UserNotFoundException::new);
 
     this.refreshTokenRepository.deleteByToken(token.getToken());
     CustomUserDetails customUserDetails = new CustomUserDetails(user);

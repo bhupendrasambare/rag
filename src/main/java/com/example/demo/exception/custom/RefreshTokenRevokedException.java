@@ -16,32 +16,13 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package com.example.demo.dto.response;
-
-import java.time.LocalDateTime;
-import java.util.Map;
+package com.example.demo.exception.custom;
 
 import com.example.demo.exception.ErrorCode;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ApiResponse<T> {
+public class RefreshTokenRevokedException extends BaseException {
 
-  private boolean success;
-
-  private String message;
-
-  private ErrorCode errorCode;
-
-  private T data;
-
-  private Map<String, String> errors;
-
-  @Builder.Default private LocalDateTime timestamp = LocalDateTime.now();
+    public RefreshTokenRevokedException() {
+        super(ErrorCode.REFRESH_TOKEN_REVOKED, "Refresh token revoked.");
+    }
 }
