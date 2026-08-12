@@ -22,7 +22,7 @@ import com.example.demo.exception.ErrorCode;
 
 public class UserNotFoundException extends BaseException {
 
-    public UserNotFoundException() {
-        super(ErrorCode.USER_NOT_FOUND, "User not found");
-    }
+  public UserNotFoundException() {
+    super(ErrorCode.USER_NOT_FOUND, "User not found");
+  }
 }

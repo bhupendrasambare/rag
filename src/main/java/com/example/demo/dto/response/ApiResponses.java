@@ -19,7 +19,6 @@
 package com.example.demo.dto.response;
 
 import com.example.demo.exception.ErrorCode;
-
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -46,14 +45,15 @@ public class ApiResponses {
 
   public static ApiResponse<Object> failure(ErrorCode errorCode, String message) {
     return ApiResponse.builder()
-            .success(false)
-            .errorCode(errorCode)
-            .message(message)
-            .timestamp(LocalDateTime.now())
-            .build();
+        .success(false)
+        .errorCode(errorCode)
+        .message(message)
+        .timestamp(LocalDateTime.now())
+        .build();
   }
 
-  public static ApiResponse<Object> validation(ErrorCode errorCode,String message, Map<String, String> errors) {
+  public static ApiResponse<Object> validation(
+      ErrorCode errorCode, String message, Map<String, String> errors) {
 
     return ApiResponse.builder()
         .success(false)

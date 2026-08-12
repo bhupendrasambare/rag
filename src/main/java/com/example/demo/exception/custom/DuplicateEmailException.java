@@ -22,7 +22,7 @@ import com.example.demo.exception.ErrorCode;
 
 public class DuplicateEmailException extends BaseException {
 
-    public DuplicateEmailException() {
-        super(ErrorCode.DUPLICATE_EMAIL, "Email address is already registered.");
-    }
+  public DuplicateEmailException() {
+    super(ErrorCode.DUPLICATE_EMAIL, "Email address is already registered.");
+  }
 }

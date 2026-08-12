@@ -33,7 +33,6 @@ import com.example.demo.repository.RefreshTokenRepository;
 import com.example.demo.repository.UserInfoRepository;
 import com.example.demo.service.AuthService;
 import java.time.LocalDateTime;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -115,9 +114,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     UserInfo user =
-        this.userRepository
-            .findById(token.getUserId())
-            .orElseThrow(UserNotFoundException::new);
+        this.userRepository.findById(token.getUserId()).orElseThrow(UserNotFoundException::new);
 
     this.refreshTokenRepository.deleteByToken(token.getToken());
     CustomUserDetails customUserDetails = new CustomUserDetails(user);

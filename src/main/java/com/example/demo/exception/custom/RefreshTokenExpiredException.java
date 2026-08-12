@@ -22,7 +22,7 @@ import com.example.demo.exception.ErrorCode;
 
 public class RefreshTokenExpiredException extends BaseException {
 
-    public RefreshTokenExpiredException() {
-        super(ErrorCode.REFRESH_TOKEN_EXPIRED, "User not found");
-    }
+  public RefreshTokenExpiredException() {
+    super(ErrorCode.REFRESH_TOKEN_EXPIRED, "User not found");
+  }
 }

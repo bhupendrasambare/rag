@@ -22,7 +22,7 @@ import com.example.demo.exception.ErrorCode;
 
 public class RefreshTokenNotFoundException extends BaseException {
 
-    public RefreshTokenNotFoundException() {
-        super(ErrorCode.REFRESH_TOKEN_NOT_FOUND, "Refresh token not found.");
-    }
+  public RefreshTokenNotFoundException() {
+    super(ErrorCode.REFRESH_TOKEN_NOT_FOUND, "Refresh token not found.");
+  }
 }

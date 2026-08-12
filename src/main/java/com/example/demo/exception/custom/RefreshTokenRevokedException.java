@@ -22,7 +22,7 @@ import com.example.demo.exception.ErrorCode;
 
 public class RefreshTokenRevokedException extends BaseException {
 
-    public RefreshTokenRevokedException() {
-        super(ErrorCode.REFRESH_TOKEN_REVOKED, "Refresh token revoked.");
-    }
+  public RefreshTokenRevokedException() {
+    super(ErrorCode.REFRESH_TOKEN_REVOKED, "Refresh token revoked.");
+  }
 }

@@ -22,7 +22,7 @@ import com.example.demo.exception.ErrorCode;
 
 public class InvalidCredentialsException extends BaseException {
 
-    public InvalidCredentialsException() {
-        super(ErrorCode.INVALID_CREDENTIALS, "Invalid credentials");
-    }
+  public InvalidCredentialsException() {
+    super(ErrorCode.INVALID_CREDENTIALS, "Invalid credentials");
+  }
 }
