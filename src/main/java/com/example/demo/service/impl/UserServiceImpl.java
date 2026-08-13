@@ -20,6 +20,7 @@ package com.example.demo.service.impl;
 
 import com.example.demo.dto.request.UpdateProfileRequest;
 import com.example.demo.dto.response.UserProfileResponse;
+import com.example.demo.exception.custom.UserNotFoundException;
 import com.example.demo.mapper.UserMapper;
 import com.example.demo.models.UserInfo;
 import com.example.demo.repository.UserInfoRepository;
@@ -64,8 +65,6 @@ public class UserServiceImpl implements UserService {
 
     String email = authentication.getName();
 
-    return this.userRepository
-        .findByEmail(email)
-        .orElseThrow(() -> new NotFoundException("Authenticated user not found."));
+    return this.userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
   }
 }
