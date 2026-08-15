@@ -19,6 +19,7 @@
 package com.document.rag.service.impl;
 
 import com.document.rag.dto.response.CustomUserDetails;
+import com.document.rag.exception.custom.UserNotFoundException;
 import com.document.rag.models.UserInfo;
 import com.document.rag.repository.UserInfoRepository;
 import com.document.rag.service.CustomUserDetailsService;
@@ -38,7 +39,7 @@ public class CustomUserServiceImpl implements CustomUserDetailsService {
     UserInfo user =
         userInfoRepository
             .findByEmail(email)
-            .orElseThrow(() -> new UsernameNotFoundException("User not found : " + email));
+            .orElseThrow(UserNotFoundException::new);
 
     return new CustomUserDetails(user);
   }
