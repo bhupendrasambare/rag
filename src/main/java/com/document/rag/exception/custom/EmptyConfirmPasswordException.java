@@ -16,20 +16,13 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package com.document.rag.repository;
+package com.document.rag.exception.custom;
 
-import com.document.rag.models.UserInfo;
-import java.util.Optional;
-import java.util.UUID;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import com.document.rag.exception.ErrorCode;
 
-@Repository
-public interface UserInfoRepository extends JpaRepository<UserInfo, UUID> {
+public class EmptyConfirmPasswordException extends BaseException {
 
-  Optional<UserInfo> findByEmail(String email);
-
-  boolean existsByEmail(String email);
-
-  boolean existsByEmailAndIdNot(String email, UUID userId);
+  public EmptyConfirmPasswordException() {
+    super(ErrorCode.EMPTY_CONFIRM_PASSWORD, "Confirm password is empty");
+  }
 }

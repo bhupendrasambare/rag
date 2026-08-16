@@ -33,5 +33,9 @@ public class UpdateProfileRequest {
   @Size(max = 100)
   private String lastName;
 
+  @NotBlank
+  @Size(max = 100)
+  private String email;
+
   private String profileImage;
 }

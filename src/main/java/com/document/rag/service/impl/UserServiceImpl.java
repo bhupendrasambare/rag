@@ -25,6 +25,7 @@ import com.document.rag.mapper.UserMapper;
 import com.document.rag.models.UserInfo;
 import com.document.rag.repository.UserInfoRepository;
 import com.document.rag.service.UserService;
+import com.document.rag.service.ValidationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,6 +37,7 @@ public class UserServiceImpl implements UserService {
 
   private final UserInfoRepository userRepository;
   private final UserMapper userMapper;
+  private final ValidationService validationService;
 
   @Override
   public UserProfileResponse getProfile() {
@@ -50,9 +52,23 @@ public class UserServiceImpl implements UserService {
 
     UserInfo user = getCurrentUser();
 
+    /*
+     * Validate that the email is not already used
+     * by another user.
+     */
+    this.validationService.validateUniqueEmail(
+            request.getEmail(),
+            user.getId());
+
     user.setFirstName(request.getFirstName());
     user.setLastName(request.getLastName());
     user.setProfileImage(request.getProfileImage());
+
+    /*
+     * Only update email if your UpdateProfileRequest
+     * contains an email field.
+     */
+    user.setEmail(request.getEmail());
 
     user = this.userRepository.save(user);
 
@@ -61,10 +77,13 @@ public class UserServiceImpl implements UserService {
 
   private UserInfo getCurrentUser() {
 
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    Authentication authentication =
+            SecurityContextHolder.getContext().getAuthentication();
 
     String email = authentication.getName();
 
-    return this.userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
+    return this.userRepository
+            .findByEmail(email)
+            .orElseThrow(UserNotFoundException::new);
   }
 }

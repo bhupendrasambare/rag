@@ -18,18 +18,82 @@
  */
 package com.document.rag.service.impl;
 
+import com.document.rag.exception.custom.*;
+import com.document.rag.models.RefreshToken;
+import com.document.rag.repository.RefreshTokenRepository;
+import com.document.rag.repository.UserInfoRepository;
 import com.document.rag.service.ValidationService;
+import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
+@RequiredArgsConstructor
 public class ValidationServiceImpl implements ValidationService {
-  @Override
-  public void validateUniqueEmail(String email, UUID userId) {}
+
+  private final UserInfoRepository userInfoRepository;
+  private final RefreshTokenRepository refreshTokenRepository;
 
   @Override
-  public void validatePassword(String password, String confirmPassword) {}
+  public void validateUniqueEmail(String email, UUID userId) {
+
+    if (!StringUtils.hasText(email)) {
+      return;
+    }
+
+    boolean emailExists;
+
+    if (userId == null) {
+      emailExists = this.userInfoRepository.existsByEmail(email);
+    } else {
+      emailExists = this.userInfoRepository.existsByEmailAndIdNot(email, userId);
+    }
+
+    if (emailExists) {
+      throw new DuplicateEmailException();
+    }
+  }
 
   @Override
-  public void validateRefreshToken(String refreshToken, UUID userId) {}
+  public void validatePassword(String password, String confirmPassword) {
+
+    if (!StringUtils.hasText(password)) {
+      throw new EmptyPasswordException();
+    }
+
+    if (!StringUtils.hasText(confirmPassword)) {
+      throw new EmptyConfirmPasswordException();
+    }
+
+    if (!password.equals(confirmPassword)) {
+      throw new ConfirmPasswordNotMatchedException();
+    }
+  }
+
+  @Override
+  public void validateRefreshToken(String refreshToken, UUID userId) {
+
+    if (!StringUtils.hasText(refreshToken)) {
+      throw new RefreshTokenNotFoundException();
+    }
+
+    RefreshToken token =
+            this.refreshTokenRepository
+                    .findByToken(refreshToken)
+                    .orElseThrow(InvalidRefreshTokenException::new);
+
+    if (Boolean.TRUE.equals(token.getRevoked())) {
+      throw new InvalidRefreshTokenException();
+    }
+
+    if (token.getExpiredAt().isBefore(LocalDateTime.now())) {
+      throw new InvalidRefreshTokenException();
+    }
+
+    if (userId != null && !token.getUserId().equals(userId)) {
+      throw new InvalidRefreshTokenException();
+    }
+  }
 }
