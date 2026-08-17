@@ -56,9 +56,7 @@ public class UserServiceImpl implements UserService {
      * Validate that the email is not already used
      * by another user.
      */
-    this.validationService.validateUniqueEmail(
-            request.getEmail(),
-            user.getId());
+    this.validationService.validateUniqueEmail(request.getEmail(), user.getId());
 
     user.setFirstName(request.getFirstName());
     user.setLastName(request.getLastName());
@@ -77,13 +75,10 @@ public class UserServiceImpl implements UserService {
 
   private UserInfo getCurrentUser() {
 
-    Authentication authentication =
-            SecurityContextHolder.getContext().getAuthentication();
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
     String email = authentication.getName();
 
-    return this.userRepository
-            .findByEmail(email)
-            .orElseThrow(UserNotFoundException::new);
+    return this.userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
   }
 }

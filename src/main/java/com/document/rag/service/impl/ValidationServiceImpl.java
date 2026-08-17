@@ -80,9 +80,9 @@ public class ValidationServiceImpl implements ValidationService {
     }
 
     RefreshToken token =
-            this.refreshTokenRepository
-                    .findByToken(refreshToken)
-                    .orElseThrow(InvalidRefreshTokenException::new);
+        this.refreshTokenRepository
+            .findByToken(refreshToken)
+            .orElseThrow(InvalidRefreshTokenException::new);
 
     if (Boolean.TRUE.equals(token.getRevoked())) {
       throw new InvalidRefreshTokenException();

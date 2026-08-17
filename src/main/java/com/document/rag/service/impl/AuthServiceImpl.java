@@ -32,6 +32,7 @@ import com.document.rag.models.UserInfo;
 import com.document.rag.repository.RefreshTokenRepository;
 import com.document.rag.repository.UserInfoRepository;
 import com.document.rag.service.AuthService;
+import com.document.rag.service.ValidationService;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -47,15 +48,15 @@ public class AuthServiceImpl implements AuthService {
   private final RefreshTokenRepository refreshTokenRepository;
   private final PasswordEncoder passwordEncoder;
   private final JwtService jwtService;
+  private final ValidationService validationService;
   private final AuthenticationManager authenticationManager;
   private final UserMapper userMapper;
 
   @Override
   public LoginResponse signUp(SignupRequest request) {
 
-    if (this.userRepository.existsByEmail(request.getEmail())) {
-      throw new DuplicateEmailException();
-    }
+    this.validationService.validatePassword(request.getPassword(), request.getConfirmPassword());
+    this.validationService.validateUniqueEmail(request.getEmail(), null);
 
     UserInfo user = new UserInfo();
 
