@@ -18,24 +18,70 @@
  */
 package com.document.rag.service.impl;
 
+import com.document.rag.constants.DocumentStatus;
 import com.document.rag.dto.request.DocumentResponse;
 import com.document.rag.dto.request.DocumentStatusResponse;
 import com.document.rag.dto.request.UploadDocumentRequest;
+import com.document.rag.dto.response.UserProfileResponse;
+import com.document.rag.exception.custom.DocumentUploadException;
+import com.document.rag.mapper.DocumentMapper;
+import com.document.rag.models.DocumentInfo;
+import com.document.rag.repository.DocumentInfoRepository;
+import com.document.rag.service.DocumentProcessingService;
 import com.document.rag.service.DocumentService;
+import com.document.rag.service.UserService;
+import io.jsonwebtoken.io.IOException;
+import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
+@RequiredArgsConstructor
 public class DocumentServiceImpl implements DocumentService {
-  @Override
-  public void uploadDocument(UploadDocumentRequest request) {}
+
+  private final DocumentInfoRepository documentInfoRepository;
+  private final DocumentMapper documentMapper;
+  private final UserService userService;
+  private final DocumentProcessingService documentProcessingService;
 
   @Override
-  public DocumentResponse uploadFile(UploadDocumentRequest request) {
-    return null;
+  @Transactional
+  public void uploadDocument(UploadDocumentRequest request) {
+    this.uploadFile(request);
   }
+
+  @Override
+  @Transactional
+  public DocumentResponse uploadFile(UploadDocumentRequest request) {
+    this.validateUploadRequest(request);
+
+    UserProfileResponse userInfo = this.userService.getProfile();
+    try {
+      MultipartFile file = request.getFile();
+
+      DocumentInfo documentInfo = new DocumentInfo();
+      documentInfo.setUserId(userInfo.getId());
+      documentInfo.setFileName(request.getFileName());
+      documentInfo.setOriginalFileName(file.getOriginalFilename());
+      documentInfo.setFileSize(file.getSize());
+      documentInfo.setStatus(DocumentStatus.UPLOADING);
+      documentInfo.setCreatedAt(LocalDateTime.now());
+
+      documentInfo = this.documentInfoRepository.save(documentInfo);
+
+      return documentMapper.toResponse(documentInfo);
+
+    } catch (IOException exception) {
+      throw new DocumentUploadException();
+    }
+  }
+
+  private void validateUploadRequest(UploadDocumentRequest request) {}
 
   @Override
   public Page<DocumentResponse> getDocuments(Pageable pageable) {

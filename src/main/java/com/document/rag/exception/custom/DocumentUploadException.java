@@ -16,24 +16,13 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package com.document.rag.mapper;
+package com.document.rag.exception.custom;
 
-import com.document.rag.dto.request.DocumentResponse;
-import com.document.rag.models.DocumentInfo;
-import org.springframework.stereotype.Component;
+import com.document.rag.exception.ErrorCode;
 
-@Component
-public class DocumentMapper {
+public class DocumentUploadException extends BaseException {
 
-  public DocumentResponse toResponse(DocumentInfo document) {
-
-    return DocumentResponse.builder()
-        .id(document.getId())
-        .fileName(document.getFileName())
-        .contentType(document.getFileType())
-        .fileSize(document.getFileSize())
-        .status(document.getStatus())
-        .createdAt(document.getCreatedAt())
-        .build();
+  public DocumentUploadException() {
+    super(ErrorCode.DOCUMENT_UPLOAD_FAILED, "Unable to upload document");
   }
 }

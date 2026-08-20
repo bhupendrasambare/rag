@@ -18,4 +18,21 @@
  */
 package com.document.rag.dto.request;
 
-public class DocumentResponse {}
+import com.document.rag.constants.DocumentStatus;
+import com.document.rag.constants.FileType;
+import java.time.LocalDateTime;
+import java.util.UUID;
+import lombok.Builder;
+import lombok.Data;
+
+@Builder
+@Data
+public class DocumentResponse {
+
+  private UUID id;
+  private String fileName;
+  private FileType contentType;
+  private Long fileSize;
+  private DocumentStatus status;
+  private LocalDateTime createdAt;
+}
