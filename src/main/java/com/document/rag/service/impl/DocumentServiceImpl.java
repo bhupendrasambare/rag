@@ -23,7 +23,9 @@ import com.document.rag.dto.request.DocumentResponse;
 import com.document.rag.dto.request.DocumentStatusResponse;
 import com.document.rag.dto.request.UploadDocumentRequest;
 import com.document.rag.dto.response.UserProfileResponse;
+import com.document.rag.exception.custom.DocumentFileRequiredException;
 import com.document.rag.exception.custom.DocumentUploadException;
+import com.document.rag.exception.custom.EmptyDocumentFileException;
 import com.document.rag.mapper.DocumentMapper;
 import com.document.rag.models.DocumentInfo;
 import com.document.rag.repository.DocumentInfoRepository;
@@ -81,8 +83,6 @@ public class DocumentServiceImpl implements DocumentService {
     }
   }
 
-  private void validateUploadRequest(UploadDocumentRequest request) {}
-
   @Override
   public Page<DocumentResponse> getDocuments(Pageable pageable) {
     return null;
@@ -100,4 +100,17 @@ public class DocumentServiceImpl implements DocumentService {
 
   @Override
   public void deleteDocument(UUID id) {}
+
+  private void validateUploadRequest(UploadDocumentRequest request) {
+
+    if (request == null || request.getFile() == null) {
+
+      throw new DocumentFileRequiredException();
+    }
+
+    if (request.getFile().isEmpty()) {
+
+      throw new EmptyDocumentFileException();
+    }
+  }
 }
