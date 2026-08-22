@@ -23,9 +23,7 @@ import com.document.rag.dto.request.DocumentResponse;
 import com.document.rag.dto.request.DocumentStatusResponse;
 import com.document.rag.dto.request.UploadDocumentRequest;
 import com.document.rag.dto.response.UserProfileResponse;
-import com.document.rag.exception.custom.DocumentFileRequiredException;
-import com.document.rag.exception.custom.DocumentUploadException;
-import com.document.rag.exception.custom.EmptyDocumentFileException;
+import com.document.rag.exception.custom.*;
 import com.document.rag.mapper.DocumentMapper;
 import com.document.rag.models.DocumentInfo;
 import com.document.rag.repository.DocumentInfoRepository;
@@ -34,6 +32,7 @@ import com.document.rag.service.DocumentService;
 import com.document.rag.service.UserService;
 import io.jsonwebtoken.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -85,21 +84,31 @@ public class DocumentServiceImpl implements DocumentService {
 
   @Override
   public Page<DocumentResponse> getDocuments(Pageable pageable) {
-    return null;
+    UserProfileResponse userInfo = this.userService.getProfile();
+
+    Page<DocumentInfo> documentList =
+        documentInfoRepository.findAllByUserId(userInfo.getId(), pageable);
+    return documentList.map(this.documentMapper::toResponse);
   }
 
   @Override
   public DocumentResponse getDocument(UUID id) {
-    return null;
+    return this.documentMapper.toResponse(this.getDocumentInfo(id, false));
   }
 
   @Override
   public DocumentStatusResponse getDocumentStatus(UUID id) {
-    return null;
+    DocumentInfo info = this.getDocumentInfo(id, false);
+    return new DocumentStatusResponse(info.getStatus());
   }
 
   @Override
-  public void deleteDocument(UUID id) {}
+  @Transactional
+  public void deleteDocument(UUID id) {
+    DocumentInfo documentInfo = this.getDocumentInfo(id, false);
+    documentInfo.setDeleted(true);
+    this.documentInfoRepository.save(documentInfo);
+  }
 
   private void validateUploadRequest(UploadDocumentRequest request) {
 
@@ -112,5 +121,20 @@ public class DocumentServiceImpl implements DocumentService {
 
       throw new EmptyDocumentFileException();
     }
+  }
+
+  private DocumentInfo getDocumentInfo(UUID id, boolean showDeleted) {
+    if (id != null) {
+      Optional<DocumentInfo> info =
+          documentInfoRepository.findByIdAndUserId(id, this.userService.getProfile().getId());
+      if (info.isEmpty()) {
+        throw new DocumentInfoNotFoundException();
+      }
+      if (!showDeleted && info.get().getDeleted()) {
+        throw new DocumentInfoNotFoundException();
+      }
+      return info.get();
+    }
+    throw new EmptyIdException();
   }
 }

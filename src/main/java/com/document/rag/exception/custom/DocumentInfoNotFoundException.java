@@ -16,23 +16,13 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package com.document.rag.dto.request;
+package com.document.rag.exception.custom;
 
-import com.document.rag.constants.DocumentStatus;
+import com.document.rag.exception.ErrorCode;
 
-public class DocumentStatusResponse {
+public class DocumentInfoNotFoundException extends BaseException {
 
-  private DocumentStatus status;
-
-  public DocumentStatusResponse(DocumentStatus status) {
-    this.status = status;
-  }
-
-  public DocumentStatus getStatus() {
-    return status;
-  }
-
-  public void setStatus(DocumentStatus status) {
-    this.status = status;
+  public DocumentInfoNotFoundException() {
+    super(ErrorCode.DOCUMENT_INFO_NOT_FOUND, "Document info not found");
   }
 }

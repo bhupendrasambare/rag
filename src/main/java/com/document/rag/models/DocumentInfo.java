@@ -87,6 +87,9 @@ public class DocumentInfo {
   @Enumerated(EnumType.STRING)
   private DocumentStatus status;
 
+  @Column(name = "deleted")
+  private Boolean deleted;
+
   @Column(name = "total_pages")
   private Integer totalPages;
 
