@@ -36,7 +36,11 @@ CREATE TABLE IF NOT EXISTS document_info
 
     chunk_count BIGINT DEFAULT 0,
 
+    deleted Boolean DEFAULT FALSE,
+
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    updated_at TIMESTAMPTZ NOT NULL,
 
     processed_at TIMESTAMPTZ,
 

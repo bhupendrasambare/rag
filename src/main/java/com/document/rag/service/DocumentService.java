@@ -18,9 +18,9 @@
  */
 package com.document.rag.service;
 
-import com.document.rag.dto.request.DocumentResponse;
-import com.document.rag.dto.request.DocumentStatusResponse;
 import com.document.rag.dto.request.UploadDocumentRequest;
+import com.document.rag.dto.response.DocumentResponse;
+import com.document.rag.dto.response.DocumentStatusResponse;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

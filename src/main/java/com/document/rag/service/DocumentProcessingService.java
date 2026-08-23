@@ -18,4 +18,14 @@
  */
 package com.document.rag.service;
 
-public interface DocumentProcessingService {}
+import com.document.rag.models.DocumentInfo;
+import java.io.IOException;
+import java.util.UUID;
+import org.springframework.web.multipart.MultipartFile;
+
+public interface DocumentProcessingService {
+
+  void process(DocumentInfo documentInfo, MultipartFile file) throws IOException;
+
+  void deleteVectors(UUID documentId);
+}

@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package com.document.rag.dto.request;
+package com.document.rag.dto.response;
 
 import com.document.rag.constants.DocumentStatus;
 import com.document.rag.constants.FileType;
@@ -31,8 +31,10 @@ public class DocumentResponse {
 
   private UUID id;
   private String fileName;
+  private String originalFileName;
   private FileType contentType;
   private Long fileSize;
   private DocumentStatus status;
   private LocalDateTime createdAt;
+  private LocalDateTime updatedAt;
 }

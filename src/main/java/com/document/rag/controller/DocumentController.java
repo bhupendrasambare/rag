@@ -19,11 +19,11 @@
 package com.document.rag.controller;
 
 import com.document.rag.constants.Constants;
-import com.document.rag.dto.request.DocumentResponse;
-import com.document.rag.dto.request.DocumentStatusResponse;
 import com.document.rag.dto.request.UploadDocumentRequest;
 import com.document.rag.dto.response.ApiResponse;
 import com.document.rag.dto.response.ApiResponses;
+import com.document.rag.dto.response.DocumentResponse;
+import com.document.rag.dto.response.DocumentStatusResponse;
 import com.document.rag.service.DocumentService;
 import jakarta.validation.Valid;
 import java.util.UUID;

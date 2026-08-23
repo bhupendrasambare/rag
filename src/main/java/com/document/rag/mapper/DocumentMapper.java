@@ -18,7 +18,7 @@
  */
 package com.document.rag.mapper;
 
-import com.document.rag.dto.request.DocumentResponse;
+import com.document.rag.dto.response.DocumentResponse;
 import com.document.rag.models.DocumentInfo;
 import org.springframework.stereotype.Component;
 
@@ -30,10 +30,11 @@ public class DocumentMapper {
     return DocumentResponse.builder()
         .id(document.getId())
         .fileName(document.getFileName())
-        .contentType(document.getFileType())
+        .originalFileName(document.getOriginalFileName())
         .fileSize(document.getFileSize())
         .status(document.getStatus())
         .createdAt(document.getCreatedAt())
+        .updatedAt(document.getUpdatedAt())
         .build();
   }
 }

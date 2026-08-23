@@ -22,5 +22,6 @@ public enum DocumentStatus {
   UPLOADING,
   PROCESSING,
   READY,
+  COMPLETED,
   FAILED
 }
