@@ -74,57 +74,24 @@ public class DocumentServiceImpl implements DocumentService {
 
       DocumentInfo documentInfo = new DocumentInfo();
 
-      documentInfo.setUserId(userInfo.getId());
 
-      /*
-       * If request.getFileName() is supplied by frontend,
-       * use it. Otherwise use the actual uploaded filename.
-       */
       String fileName = request.getFileName();
 
       if (fileName == null || fileName.isBlank()) {
         fileName = file.getOriginalFilename();
       }
 
+      documentInfo.setUserId(userInfo.getId());
       documentInfo.setFileName(fileName);
-
       documentInfo.setOriginalFileName(file.getOriginalFilename());
-
       documentInfo.setFileSize(file.getSize());
-
       documentInfo.setStatus(DocumentStatus.UPLOADING);
-
       documentInfo.setDeleted(false);
-
       documentInfo.setCreatedAt(LocalDateTime.now());
 
-      /*
-       * Save metadata first.
-       *
-       * This gives us the document UUID which will be used
-       * as metadata in PGVector.
-       */
       documentInfo = this.documentInfoRepository.save(documentInfo);
-
-      /*
-       * Process:
-       *
-       * PDF
-       *   ↓
-       * extract text
-       *   ↓
-       * split chunks
-       *   ↓
-       * Ollama embeddings
-       *   ↓
-       * PGVector
-       */
       this.documentProcessingService.process(documentInfo, file);
 
-      /*
-       * Re-fetch because processing may have changed
-       * the status.
-       */
       documentInfo =
           this.documentInfoRepository
               .findById(documentInfo.getId())
@@ -178,19 +145,9 @@ public class DocumentServiceImpl implements DocumentService {
 
     DocumentInfo documentInfo = this.getDocumentInfo(id, false);
 
-    /*
-     * Delete vectors first.
-     *
-     * If vector deletion fails, we don't mark the
-     * document as deleted.
-     */
     this.documentProcessingService.deleteVectors(documentInfo.getId());
 
-    /*
-     * Soft delete.
-     */
     documentInfo.setDeleted(true);
-
     documentInfo.setUpdatedAt(LocalDateTime.now());
 
     this.documentInfoRepository.save(documentInfo);
@@ -198,15 +155,10 @@ public class DocumentServiceImpl implements DocumentService {
 
   private void validateUploadRequest(UploadDocumentRequest request) {
 
-    if (request == null || request.getFile() == null) {
-
-      throw new DocumentFileRequiredException();
+    if (request != null && request.getFile() != null && request.getFile().isEmpty()) {
+      return;
     }
-
-    if (request.getFile().isEmpty()) {
-
-      throw new EmptyDocumentFileException();
-    }
+    throw new DocumentFileRequiredException();
   }
 
   private DocumentInfo getDocumentInfo(UUID id, boolean showDeleted) {
@@ -220,14 +172,12 @@ public class DocumentServiceImpl implements DocumentService {
     Optional<DocumentInfo> info = this.documentInfoRepository.findByIdAndUserId(id, userId);
 
     if (info.isEmpty()) {
-
       throw new DocumentInfoNotFoundException();
     }
 
     DocumentInfo documentInfo = info.get();
 
     if (!showDeleted && Boolean.TRUE.equals(documentInfo.getDeleted())) {
-
       throw new DocumentInfoNotFoundException();
     }
 
