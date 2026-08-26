@@ -26,7 +26,6 @@ import com.document.rag.dto.response.UserProfileResponse;
 import com.document.rag.exception.custom.DocumentFileRequiredException;
 import com.document.rag.exception.custom.DocumentInfoNotFoundException;
 import com.document.rag.exception.custom.DocumentUploadException;
-import com.document.rag.exception.custom.EmptyDocumentFileException;
 import com.document.rag.exception.custom.EmptyIdException;
 import com.document.rag.mapper.DocumentMapper;
 import com.document.rag.models.DocumentInfo;
@@ -73,7 +72,6 @@ public class DocumentServiceImpl implements DocumentService {
     try {
 
       DocumentInfo documentInfo = new DocumentInfo();
-
 
       String fileName = request.getFileName();
 

@@ -1,0 +1,12 @@
+:root {
+  --rag-primary: #212529;
+  --rag-background: #f8f9fa;
+  --rag-border: #dee2e6;
+  --rag-text: #212529;
+  --rag-muted: #6c757d;
+}
+
+body {
+  color: var(--rag-text);
+  background: var(--rag-background);
+}

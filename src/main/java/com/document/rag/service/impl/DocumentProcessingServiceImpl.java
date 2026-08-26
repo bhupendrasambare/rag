@@ -65,11 +65,11 @@ public class DocumentProcessingServiceImpl implements DocumentProcessingService 
       if (documents != null && documents.isEmpty()) {
 
         TokenTextSplitter splitter =
-                TokenTextSplitter.builder()
-                        .withChunkSize(800)
-                        .withMinChunkSizeChars(350)
-                        .withMinChunkLengthToEmbed(5)
-                        .build();
+            TokenTextSplitter.builder()
+                .withChunkSize(800)
+                .withMinChunkSizeChars(350)
+                .withMinChunkLengthToEmbed(5)
+                .build();
 
         List<Document> chunks = splitter.apply(documents);
 
@@ -81,17 +81,17 @@ public class DocumentProcessingServiceImpl implements DocumentProcessingService 
         final String fileName = documentInfo.getFileName();
 
         chunks.forEach(
-                chunk -> {
-                  chunk.getMetadata().put("documentId", documentId);
+            chunk -> {
+              chunk.getMetadata().put("documentId", documentId);
 
-                  chunk.getMetadata().put("userId", userId);
+              chunk.getMetadata().put("userId", userId);
 
-                  chunk.getMetadata().put("fileName", fileName);
-                });
+              chunk.getMetadata().put("fileName", fileName);
+            });
 
         vectorStore.add(chunks);
         documentInfo.setStatus(DocumentStatus.COMPLETED);
-      }else{
+      } else {
         throw new DocumentNotReadableException();
       }
 
