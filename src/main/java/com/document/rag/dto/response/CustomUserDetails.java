@@ -19,8 +19,11 @@
 package com.document.rag.dto.response;
 
 import com.document.rag.models.UserInfo;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
@@ -40,18 +43,23 @@ public class CustomUserDetails implements UserDetails {
 
   private final String password;
 
+  private final String createdAt;
+
   private final boolean active;
 
   private final Collection<? extends GrantedAuthority> authorities;
 
   public CustomUserDetails(UserInfo user) {
-
+    Random random = new Random();
     this.id = user.getId();
     this.firstName = user.getFirstName();
     this.lastName = user.getLastName();
     this.email = user.getEmail();
     this.password = user.getPasswordHash();
     this.active = Boolean.TRUE.equals(user.getActive());
+    this.createdAt =
+        Long.valueOf(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) + random.nextLong())
+            .toString();
 
     this.authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
   }

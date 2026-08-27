@@ -52,7 +52,7 @@ public class DocumentInfo {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  @Column(name = "user_id")
+  @Column(name = "user_id", nullable = false)
   private UUID userId;
 
   @Column(name = "embedding_model", nullable = false, length = 100)

@@ -27,9 +27,9 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableAsync
 @SpringBootApplication
 @EnableConfigurationProperties(JwtProperties.class)
-public class DemoApplication {
+public class RagApplication {
 
   public static void main(String[] args) {
-    SpringApplication.run(DemoApplication.class, args);
+    SpringApplication.run(RagApplication.class, args);
   }
 }

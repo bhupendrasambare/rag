@@ -41,6 +41,7 @@ public class AuthController {
 
   public final AuthService authService;
 
+  @PostMapping("/signup")
   public ResponseEntity<ApiResponse<LoginResponse>> signUp(
       @Valid @RequestBody SignupRequest request) {
     return ResponseEntity.ok(

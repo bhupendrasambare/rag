@@ -1,34 +1,70 @@
-import { Navigate, Outlet } from 'react-router-dom';
+import {
+  Navigate,
+  Outlet,
+  useLocation,
+} from 'react-router-dom';
 
-import { useAuthStore } from '../store';
+import {
+  Spinner,
+} from 'react-bootstrap';
+
+import {
+  useAuthStore,
+} from '../store';
 
 const AuthGuard = () => {
 
-  const {
-    isAuthenticated,
-    initialized,
-  } = useAuthStore();
+  const location =
+    useLocation();
 
-  if (!initialized) {
+  const isAuthenticated =
+    useAuthStore(
+      (state) =>
+        state.isAuthenticated,
+    );
+
+  const isInitializing =
+    useAuthStore(
+      (state) =>
+        state.isInitializing,
+    );
+
+  /*
+   * App normally waits for initialization,
+   * but keep this guard as an additional
+   * protection.
+   */
+
+  if (isInitializing) {
+
     return (
-      <div className="d-flex justify-content-center align-items-center vh-100">
-        <div
-          className="spinner-border"
-          role="status"
-        >
-          <span className="visually-hidden">
-            Loading...
-          </span>
-        </div>
+      <div
+        className="
+          min-vh-100
+          d-flex
+          align-items-center
+          justify-content-center
+        "
+      >
+
+        <Spinner
+          animation="border"
+        />
+
       </div>
     );
   }
 
   if (!isAuthenticated) {
+
     return (
       <Navigate
         to="/login"
         replace
+        state={{
+          from:
+            location.pathname,
+        }}
       />
     );
   }

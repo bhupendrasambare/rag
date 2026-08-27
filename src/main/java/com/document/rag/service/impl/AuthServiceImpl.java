@@ -24,7 +24,11 @@ import com.document.rag.dto.request.RefreshTokenRequest;
 import com.document.rag.dto.request.SignupRequest;
 import com.document.rag.dto.response.CustomUserDetails;
 import com.document.rag.dto.response.LoginResponse;
-import com.document.rag.exception.custom.*;
+import com.document.rag.exception.custom.InvalidCredentialsException;
+import com.document.rag.exception.custom.RefreshTokenExpiredException;
+import com.document.rag.exception.custom.RefreshTokenNotFoundException;
+import com.document.rag.exception.custom.RefreshTokenRevokedException;
+import com.document.rag.exception.custom.UserNotFoundException;
 import com.document.rag.jwt.JwtService;
 import com.document.rag.mapper.UserMapper;
 import com.document.rag.models.RefreshToken;
@@ -39,37 +43,58 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
   private final UserInfoRepository userRepository;
+
   private final RefreshTokenRepository refreshTokenRepository;
+
   private final PasswordEncoder passwordEncoder;
+
   private final JwtService jwtService;
+
   private final ValidationService validationService;
+
   private final AuthenticationManager authenticationManager;
+
   private final UserMapper userMapper;
 
   @Override
+  @Transactional
   public LoginResponse signUp(SignupRequest request) {
 
     this.validationService.validatePassword(request.getPassword(), request.getConfirmPassword());
+
     this.validationService.validateUniqueEmail(request.getEmail(), null);
 
     UserInfo user = new UserInfo();
 
     user.setFirstName(request.getFirstName());
+
     user.setLastName(request.getLastName());
+
     user.setEmail(request.getEmail());
+
     user.setPasswordHash(this.passwordEncoder.encode(request.getPassword()));
+
     user.setRole(UserRole.USER);
+
     user.setActive(true);
 
+    user.setCreatedAt(LocalDateTime.now());
+
+    user.setUpdatedAt(LocalDateTime.now());
+
     user = this.userRepository.save(user);
+
     CustomUserDetails customUserDetails = new CustomUserDetails(user);
+
     String accessToken = this.jwtService.generateAccessToken(customUserDetails);
+
     String refreshToken = this.jwtService.generateRefreshToken(customUserDetails);
 
     saveRefreshToken(user, refreshToken);
@@ -78,6 +103,7 @@ public class AuthServiceImpl implements AuthService {
   }
 
   @Override
+  @Transactional
   public LoginResponse login(LoginRequest request) {
 
     this.authenticationManager.authenticate(
@@ -89,8 +115,11 @@ public class AuthServiceImpl implements AuthService {
             .orElseThrow(InvalidCredentialsException::new);
 
     this.refreshTokenRepository.deleteByUserId(user.getId());
+
     CustomUserDetails customUserDetails = new CustomUserDetails(user);
+
     String accessToken = this.jwtService.generateAccessToken(customUserDetails);
+
     String refreshToken = this.jwtService.generateRefreshToken(customUserDetails);
 
     saveRefreshToken(user, refreshToken);
@@ -99,11 +128,12 @@ public class AuthServiceImpl implements AuthService {
   }
 
   @Override
+  @Transactional
   public LoginResponse refreshToken(RefreshTokenRequest request) {
 
     RefreshToken token =
         this.refreshTokenRepository
-            .findByToken(request.getRefreshToken())
+            .findByTokenForUpdate(request.getRefreshToken())
             .orElseThrow(RefreshTokenNotFoundException::new);
 
     if (Boolean.TRUE.equals(token.getRevoked())) {
@@ -117,32 +147,48 @@ public class AuthServiceImpl implements AuthService {
     UserInfo user =
         this.userRepository.findById(token.getUserId()).orElseThrow(UserNotFoundException::new);
 
-    this.refreshTokenRepository.deleteByToken(token.getToken());
+    token.setRevoked(true);
+
+    this.refreshTokenRepository.save(token);
+
     CustomUserDetails customUserDetails = new CustomUserDetails(user);
+
     String accessToken = this.jwtService.generateAccessToken(customUserDetails);
-    String refreshToken = this.jwtService.generateRefreshToken(customUserDetails);
 
-    saveRefreshToken(user, refreshToken);
+    String newRefreshToken = this.jwtService.generateRefreshToken(customUserDetails);
 
-    return buildLoginResponse(user, accessToken, refreshToken);
+    saveRefreshToken(user, newRefreshToken);
+
+    return buildLoginResponse(user, accessToken, newRefreshToken);
   }
 
   @Override
+  @Transactional
   public void logout(String refreshToken) {
+
+    if (refreshToken == null || refreshToken.isBlank()) {
+      return;
+    }
 
     this.refreshTokenRepository
         .findByToken(refreshToken)
         .ifPresent(
             token -> {
               token.setRevoked(true);
+
               this.refreshTokenRepository.save(token);
             });
   }
 
-  private void saveRefreshToken(UserInfo user, String token) {
+  @Override
+  @Transactional
+  public void saveRefreshToken(UserInfo user, String token) {
+
+    if (token == null || token.isBlank()) {
+      throw new IllegalArgumentException("Refresh token cannot be null or empty.");
+    }
 
     RefreshToken refreshToken = new RefreshToken();
-
     refreshToken.setUserId(user.getId());
     refreshToken.setToken(token);
     refreshToken.setRevoked(false);

@@ -16,26 +16,11 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package com.document.rag.dto.response;
+package com.document.rag.config;
 
-import com.document.rag.constants.DocumentStatus;
-import lombok.Getter;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
-import java.io.Serializable;
-
-public class DocumentStatusResponse {
-
-  private DocumentStatus status;
-
-  public DocumentStatusResponse(DocumentStatus status) {
-    this.status = status;
-  }
-
-  public void setStatus(DocumentStatus status) {
-    this.status = status;
-  }
-
-  public DocumentStatus getStatus() {
-    return status;
-  }
-}
+@Configuration
+@EnableJpaAuditing
+public class JpaConfiguration {}

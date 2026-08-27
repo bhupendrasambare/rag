@@ -86,6 +86,7 @@ public class DocumentServiceImpl implements DocumentService {
       documentInfo.setStatus(DocumentStatus.UPLOADING);
       documentInfo.setDeleted(false);
       documentInfo.setCreatedAt(LocalDateTime.now());
+      documentInfo.setUpdatedAt(LocalDateTime.now());
 
       documentInfo = this.documentInfoRepository.save(documentInfo);
       this.documentProcessingService.process(documentInfo, file);

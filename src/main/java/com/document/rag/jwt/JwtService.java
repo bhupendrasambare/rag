@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
+
 package com.document.rag.jwt;
 
 import com.document.rag.dto.response.CustomUserDetails;
@@ -31,6 +32,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -50,7 +52,9 @@ public class JwtService {
   }
 
   public String generateAccessToken(CustomUserDetails userDetails) {
+
     Map<String, Object> claims = new HashMap<>();
+
     claims.put("uid", userDetails.getId());
     claims.put("role", userDetails.getAuthorities().iterator().next().getAuthority());
 
@@ -58,25 +62,33 @@ public class JwtService {
   }
 
   public String generateRefreshToken(CustomUserDetails userDetails) {
+
     Map<String, Object> claims = new HashMap<>();
+
     claims.put("type", "REFRESH");
+    claims.put("jti", UUID.randomUUID().toString());
 
     return buildToken(claims, userDetails.getUsername(), properties.getRefreshTokenExpiration());
   }
 
   private String buildToken(Map<String, Object> claims, String userName, long expiration) {
+
     Instant now = Instant.now();
+    claims.putIfAbsent("jti", UUID.randomUUID().toString());
 
     return Jwts.builder()
         .claims(claims)
+        .id((String) claims.get("jti"))
         .subject(userName)
         .issuer(properties.getIssuer())
+        .issuedAt(Date.from(now))
         .expiration(Date.from(now.plusMillis(expiration)))
         .signWith(secretKey, algorithm)
         .compact();
   }
 
   public boolean isTokenValid(String token, UserDetails userDetails) {
+
     try {
       String username = extractUsername(token);
       return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
@@ -94,18 +106,7 @@ public class JwtService {
   }
 
   public Date extractExpiration(String token) {
-
     return extractClaims(token).getExpiration();
-  }
-
-  public String extractRole(String token) {
-
-    return extractClaims(token).get("role", String.class);
-  }
-
-  public String extractTokenType(String token) {
-
-    return extractClaims(token).get("type", String.class);
   }
 
   public Claims extractClaims(String token) {
@@ -113,16 +114,32 @@ public class JwtService {
     return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
   }
 
-  public String extractUserId(String token) {
-
-    return extractClaims(token).get("uid", String.class);
-  }
-
   public long getAccessTokenExpiration() {
-    return this.properties.getAccessTokenExpiration();
+
+    return properties.getAccessTokenExpiration();
   }
 
   public long getRefreshTokenExpiration() {
-    return this.properties.getRefreshTokenExpiration();
+
+    return properties.getRefreshTokenExpiration();
+  }
+
+  /*
+  * Extra Functions for feature use.
+  * */
+  public String extractUserId(String token) {
+    return extractClaims(token).get("uid", String.class);
+  }
+
+  public String extractTokenId(String token) {
+    return extractClaims(token).getId();
+  }
+
+  public String extractTokenType(String token) {
+    return extractClaims(token).get("type", String.class);
+  }
+
+  public String extractRole(String token) {
+    return extractClaims(token).get("role", String.class);
   }
 }

@@ -15,13 +15,27 @@ body {
   background-color: #f8f9fa;
 }
 
-button,
-input,
-textarea,
-select {
-  font: inherit;
+.login-page {
+  background:
+    linear-gradient(
+      135deg,
+      #f8f9fa 0%,
+      #e9ecef 100%
+    );
 }
 
-a {
-  text-decoration: none;
+.login-page .card {
+  border-radius: 16px;
+}
+
+.login-page .form-control {
+  min-height: 46px;
+}
+
+.login-page .btn {
+  min-height: 46px;
+}
+
+.dashboard-page {
+  min-height: calc(100vh - 48px);
 }

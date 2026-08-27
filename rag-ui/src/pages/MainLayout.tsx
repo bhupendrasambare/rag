@@ -10,40 +10,66 @@ import {
   useNavigate,
 } from 'react-router-dom';
 
-import { authService } from '../services/auth.service';
-import { useAuthStore } from '../store';
+import {
+  authService,
+} from '../services/auth.service';
+
+import {
+  useAuthStore,
+} from '../store';
 
 const MainLayout = () => {
 
-  const navigate = useNavigate();
+  const navigate =
+    useNavigate();
 
-  const user = useAuthStore(
-    (state) => state.user,
-  );
+  const user =
+    useAuthStore(
+      (state) =>
+        state.user,
+    );
 
-  const logout = useAuthStore(
-    (state) => state.logout,
-  );
+  const logout =
+    useAuthStore(
+      (state) =>
+        state.logout,
+    );
 
-  const handleLogout = async () => {
+  const handleLogout =
+    async () => {
 
-    try {
-      await authService.logout();
-    } catch {
-      // Logout locally even if server request fails.
-    } finally {
+      try {
 
-      logout();
+        await authService.logout();
 
-      navigate(
-        '/login',
-        { replace: true },
-      );
-    }
-  };
+      } catch {
+
+        /*
+         * Even if backend logout fails,
+         * clear the local session.
+         */
+
+      } finally {
+
+        logout();
+
+        navigate(
+          '/login',
+          {
+            replace: true,
+          },
+        );
+      }
+    };
 
   return (
-    <div className="min-vh-100 bg-light">
+
+    <div
+      className="
+        min-vh-100
+        bg-light
+      "
+    >
 
       <Navbar
         bg="dark"
@@ -57,15 +83,26 @@ const MainLayout = () => {
             as={Link}
             to="/dashboard"
           >
-            <i className="bi bi-database me-2" />
+
+            <i
+              className="
+                bi
+                bi-database
+                me-2
+              "
+            />
+
             RAG
+
           </Navbar.Brand>
 
           <Navbar.Toggle />
 
           <Navbar.Collapse>
 
-            <Nav className="me-auto">
+            <Nav
+              className="me-auto"
+            >
 
               <Nav.Link
                 as={Link}
@@ -97,19 +134,49 @@ const MainLayout = () => {
 
             </Nav>
 
-            <div className="d-flex align-items-center gap-3">
+            <div
+              className="
+                d-flex
+                align-items-center
+                gap-3
+              "
+            >
 
-              <span className="text-white small">
-                {user?.firstName} {user?.lastName}
+              <span
+                className="
+                  text-white
+                  small
+                "
+              >
+
+                {user?.firstName}{' '}
+
+                {user?.lastName}
+
               </span>
 
               <button
                 type="button"
-                className="btn btn-outline-light btn-sm"
-                onClick={handleLogout}
+                className="
+                  btn
+                  btn-outline-light
+                  btn-sm
+                "
+                onClick={
+                  handleLogout
+                }
               >
-                <i className="bi bi-box-arrow-right me-1" />
+
+                <i
+                  className="
+                    bi
+                    bi-box-arrow-right
+                    me-1
+                  "
+                />
+
                 Logout
+
               </button>
 
             </div>
@@ -121,7 +188,9 @@ const MainLayout = () => {
       </Navbar>
 
       <main>
+
         <Outlet />
+
       </main>
 
     </div>

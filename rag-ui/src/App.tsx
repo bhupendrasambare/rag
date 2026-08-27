@@ -1,33 +1,40 @@
-import {
-  useEffect,
-} from 'react';
-
-import {
-  BrowserRouter,
-} from 'react-router-dom';
-
-import AppRoutes from './routes/AppRoutes';
+import { useEffect } from 'react';
+import { Spinner } from 'react-bootstrap';
 
 import { useAuthStore } from './store';
-import QueryProvider from './providers/QueryProvider';
+import AppRoutes from './routes/AppRoutes';
 
-const App = () => {
+function App() {
+  const isInitializing =
+    useAuthStore(
+      (state) => state.isInitializing,
+    );
 
-  const initialize = useAuthStore(
-    (state) => state.initialize,
-  );
+  const restoreSession =
+    useAuthStore(
+      (state) => state.restoreSession,
+    );
 
   useEffect(() => {
-    initialize();
-  }, [initialize]);
+    restoreSession();
+  }, [restoreSession]);
 
-  return (
-    <QueryProvider>
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
-    </QueryProvider>
-  );
-};
+  if (isInitializing) {
+    return (
+      <div
+        className="
+          min-vh-100
+          d-flex
+          align-items-center
+          justify-content-center
+        "
+      >
+        <Spinner animation="border" />
+      </div>
+    );
+  }
+
+  return <AppRoutes />;
+}
 
 export default App;

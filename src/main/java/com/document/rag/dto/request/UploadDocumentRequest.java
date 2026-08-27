@@ -18,9 +18,6 @@
  */
 package com.document.rag.dto.request;
 
-import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
-
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;

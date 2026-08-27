@@ -22,6 +22,7 @@ import com.document.rag.dto.request.LoginRequest;
 import com.document.rag.dto.request.RefreshTokenRequest;
 import com.document.rag.dto.request.SignupRequest;
 import com.document.rag.dto.response.LoginResponse;
+import com.document.rag.models.UserInfo;
 
 public interface AuthService {
 
@@ -32,4 +33,6 @@ public interface AuthService {
   LoginResponse refreshToken(RefreshTokenRequest request);
 
   void logout(String refreshToken);
+
+  void saveRefreshToken(UserInfo user, String token);
 }

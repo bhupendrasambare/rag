@@ -1,39 +1,130 @@
-import api from '../api/axios';
-import { API_ENDPOINTS } from '../api/endpoints';
+import axios from 'axios';
 
-import { type LoginRequest, type LoginResponse } from '../types/auth';
-import type { ApiResponse } from '../types/response';
+import appConfig from '../config/app.config';
+
+import type {
+  LoginRequest,
+  LoginResponse,
+  RefreshTokenRequest,
+  RegisterRequest,
+} from '../types/auth';
+
+const authClient = axios.create({
+  baseURL: appConfig.apiBaseUrl,
+
+  timeout: appConfig.apiTimeout,
+
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
 export const authService = {
+  /*
+  |--------------------------------------------------------------------------
+  | Login
+  |--------------------------------------------------------------------------
+  */
 
   async login(
     request: LoginRequest,
   ): Promise<LoginResponse> {
+    const response =
+      await authClient.post(
+        appConfig.endpoints.auth.login,
+        request,
+      );
 
-    const response = await api.post<
-      ApiResponse<LoginResponse>
-    >(
-      API_ENDPOINTS.AUTH.LOGIN,
-      request,
-    );
+    const data =
+      response.data?.data;
 
-    if (!response.data.success || !response.data.data) {
+    if (
+      !data?.accessToken ||
+      !data?.refreshToken ||
+      !data?.user
+    ) {
       throw new Error(
-        response.data.message || 'Login failed',
+        'Invalid authentication response.',
       );
     }
+
+    return data as LoginResponse;
+  },
+
+  /*
+  |--------------------------------------------------------------------------
+  | Register
+  |--------------------------------------------------------------------------
+  */
+
+  async register(
+    request: RegisterRequest,
+  ) {
+    const response =
+      await authClient.post(
+        appConfig.endpoints.auth.register,
+        request,
+      );
 
     return response.data.data;
   },
 
-  async logout(): Promise<void> {
+  /*
+  |--------------------------------------------------------------------------
+  | Refresh
+  |--------------------------------------------------------------------------
+  |
+  | IMPORTANT:
+  |
+  | Do NOT use the main `api` client here.
+  |
+  | This request must NOT go through the
+  | 401 interceptor.
+  |
+  */
 
-    try {
-      await api.post(
-        API_ENDPOINTS.AUTH.LOGOUT,
+  async refresh(
+    request: RefreshTokenRequest,
+  ): Promise<LoginResponse> {
+    if (
+      !request.refreshToken
+    ) {
+      throw new Error(
+        'Refresh token is missing.',
       );
-    } finally {
-      // Local state is cleared by caller.
     }
+
+    const response =
+      await authClient.post(
+        appConfig.endpoints.auth.refresh,
+        request,
+      );
+
+    const data =
+      response.data?.data;
+
+    if (
+      !data?.accessToken ||
+      !data?.refreshToken ||
+      !data?.user
+    ) {
+      throw new Error(
+        'Invalid refresh authentication response.',
+      );
+    }
+
+    return data as LoginResponse;
+  },
+
+  /*
+  |--------------------------------------------------------------------------
+  | Logout
+  |--------------------------------------------------------------------------
+  */
+
+  async logout(): Promise<void> {
+    await authClient.post(
+      appConfig.endpoints.auth.logout,
+    );
   },
 };
