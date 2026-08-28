@@ -125,8 +125,8 @@ public class JwtService {
   }
 
   /*
-  * Extra Functions for feature use.
-  * */
+   * Extra Functions for feature use.
+   * */
   public String extractUserId(String token) {
     return extractClaims(token).get("uid", String.class);
   }

@@ -19,9 +19,6 @@
 package com.document.rag.dto.response;
 
 import com.document.rag.constants.DocumentStatus;
-import lombok.Getter;
-
-import java.io.Serializable;
 
 public class DocumentStatusResponse {
 
