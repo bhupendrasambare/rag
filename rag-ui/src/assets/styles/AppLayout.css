@@ -1,0 +1,343 @@
+.app-layout {
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Sidebar
+|--------------------------------------------------------------------------
+*/
+
+.app-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+
+  width: 250px;
+
+  background: #ffffff;
+
+  border-right: 1px solid #dee2e6;
+
+  display: flex;
+  flex-direction: column;
+
+  z-index: 1000;
+
+  transition:
+    width 0.2s ease;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Sidebar header
+|--------------------------------------------------------------------------
+*/
+
+.sidebar-header {
+  height: 70px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 16px;
+
+  border-bottom: 1px solid #dee2e6;
+}
+
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  font-size: 1.25rem;
+  font-weight: 700;
+
+  white-space: nowrap;
+
+  flex: 1;
+}
+
+
+.sidebar-logo i {
+  font-size: 1.35rem;
+}
+
+
+.sidebar-toggle {
+  width: 36px;
+  height: 36px;
+
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #6c757d;
+
+  border: 0;
+
+  text-decoration: none;
+}
+
+
+.sidebar-toggle:hover {
+  color: #212529;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Navigation
+|--------------------------------------------------------------------------
+*/
+
+.sidebar-navigation {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 20px 12px;
+}
+
+
+.sidebar-section-title {
+  font-size: 0.7rem;
+
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+
+  color: #6c757d;
+
+  padding:
+    0 12px
+    8px;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Sidebar item
+|--------------------------------------------------------------------------
+*/
+
+.sidebar-item {
+  width: 100%;
+
+  height: 46px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+
+  padding:
+    0 12px;
+
+  margin-bottom: 4px;
+
+  border: 0;
+
+  border-radius: 8px;
+
+  background: transparent;
+
+  color: #495057;
+
+  font-size: 0.95rem;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+
+.sidebar-item i {
+  width: 22px;
+
+  font-size: 1.1rem;
+
+  text-align: center;
+
+  flex-shrink: 0;
+}
+
+
+.sidebar-item:hover {
+  background: #f1f3f5;
+
+  color: #212529;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Logout
+|--------------------------------------------------------------------------
+*/
+
+.sidebar-bottom {
+  margin-top: auto;
+
+  padding-top: 12px;
+
+  border-top: 1px solid #dee2e6;
+}
+
+
+.sidebar-logout {
+  margin-top: 6px;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Main content
+|--------------------------------------------------------------------------
+*/
+
+.app-main {
+  min-height: 100vh;
+
+  margin-left: 250px;
+
+  transition:
+    margin-left 0.2s ease;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Collapsed sidebar
+|--------------------------------------------------------------------------
+*/
+
+.sidebar-collapsed .app-sidebar {
+  width: 72px;
+}
+
+
+.sidebar-collapsed .app-main {
+  margin-left: 72px;
+}
+
+
+.sidebar-collapsed .sidebar-header {
+  padding:
+    0 12px;
+}
+
+
+.sidebar-collapsed .sidebar-logo {
+  justify-content: center;
+}
+
+
+.sidebar-collapsed .sidebar-toggle {
+  position: absolute;
+
+  right: -16px;
+
+  top: 17px;
+
+  background: #ffffff;
+
+  border: 1px solid #dee2e6;
+
+  border-radius: 50%;
+
+  width: 32px;
+  height: 32px;
+
+  box-shadow:
+    0 1px 3px
+    rgba(0, 0, 0, 0.08);
+}
+
+
+.sidebar-collapsed .sidebar-navigation {
+  padding:
+    20px 12px;
+}
+
+
+.sidebar-collapsed .sidebar-item {
+  justify-content: center;
+
+  padding: 0;
+}
+
+
+.sidebar-collapsed .sidebar-item i {
+  width: auto;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Mobile
+|--------------------------------------------------------------------------
+*/
+
+@media (max-width: 768px) {
+
+  .app-sidebar {
+    width: 72px;
+  }
+
+  .app-main {
+    margin-left: 72px;
+  }
+
+  .sidebar-logo span,
+  .sidebar-section-title,
+  .sidebar-item span {
+    display: none;
+  }
+
+  .sidebar-header {
+    padding:
+      0 12px;
+  }
+
+  .sidebar-logo {
+    justify-content: center;
+  }
+
+  .sidebar-toggle {
+    position: absolute;
+
+    right: -16px;
+
+    top: 17px;
+
+    background: #ffffff;
+
+    border: 1px solid #dee2e6;
+
+    border-radius: 50%;
+
+    width: 32px;
+    height: 32px;
+  }
+
+  .sidebar-item {
+    justify-content: center;
+
+    padding: 0;
+  }
+
+}

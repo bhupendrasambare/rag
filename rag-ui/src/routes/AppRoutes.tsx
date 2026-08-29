@@ -6,11 +6,14 @@ import {
 
 import AuthGuard from '../guards/AuthGuard';
 
-import LoginPage from '../pages/LoginPage';
+import AppLayout from '../layouts/AppLayout';
 
+import LoginPage from '../pages/LoginPage';
 import DashboardPage from '../pages/DashboardPage';
 
+
 const AppRoutes = () => {
+
   return (
     <Routes>
 
@@ -22,8 +25,16 @@ const AppRoutes = () => {
       <Route element={<AuthGuard />}>
 
         <Route
-          path="/dashboard"
-          element={<DashboardPage />}
+          element={
+            <AppLayout>
+              <Routes>
+                <Route
+                  path="/dashboard"
+                  element={<DashboardPage />}
+                />
+              </Routes>
+            </AppLayout>
+          }
         />
 
       </Route>
@@ -41,5 +52,6 @@ const AppRoutes = () => {
     </Routes>
   );
 };
+
 
 export default AppRoutes;
