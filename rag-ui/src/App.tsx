@@ -1,25 +1,42 @@
-import { useEffect } from 'react';
-import { Spinner } from 'react-bootstrap';
+import {
+  useEffect,
+} from 'react';
 
-import { useAuthStore } from './store';
+import {
+  Spinner,
+} from 'react-bootstrap';
+
+import {
+  useAuthStore,
+} from './store';
+
 import AppRoutes from './routes/AppRoutes';
 
+
 function App() {
+
   const isInitializing =
     useAuthStore(
-      (state) => state.isInitializing,
+      (state) =>
+        state.isInitializing,
     );
 
   const restoreSession =
     useAuthStore(
-      (state) => state.restoreSession,
+      (state) =>
+        state.restoreSession,
     );
 
+
   useEffect(() => {
+
     restoreSession();
+
   }, [restoreSession]);
 
+
   if (isInitializing) {
+
     return (
       <div
         className="
@@ -29,12 +46,16 @@ function App() {
           justify-content-center
         "
       >
+
         <Spinner animation="border" />
+
       </div>
     );
   }
 
+
   return <AppRoutes />;
 }
+
 
 export default App;

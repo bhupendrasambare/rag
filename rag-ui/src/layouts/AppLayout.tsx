@@ -1,6 +1,5 @@
 import {
   useState,
-  type ReactNode,
 } from 'react';
 
 import {
@@ -9,6 +8,7 @@ import {
 
 import {
   useNavigate,
+  Outlet,
 } from 'react-router-dom';
 
 import {
@@ -16,11 +16,6 @@ import {
 } from '../store';
 
 import '../assets/styles/AppLayout.css';
-
-
-interface AppLayoutProps {
-  children: ReactNode;
-}
 
 
 interface SidebarItem {
@@ -70,9 +65,7 @@ const bottomItems: SidebarItem[] = [
 ];
 
 
-const AppLayout = ({
-  children,
-}: AppLayoutProps) => {
+const AppLayout = () => {
 
   const navigate =
     useNavigate();
@@ -86,14 +79,6 @@ const AppLayout = ({
     collapsed,
     setCollapsed,
   ] = useState(false);
-
-
-  const handleNavigation =
-    (path: string) => {
-
-      navigate(path);
-
-    };
 
 
   const handleLogout =
@@ -118,11 +103,9 @@ const AppLayout = ({
       }
     >
 
-      {/* Sidebar */}
-
       <aside className="app-sidebar">
 
-        {/* Logo */}
+        {/* Header */}
 
         <div className="sidebar-header">
 
@@ -137,6 +120,7 @@ const AppLayout = ({
             )}
 
           </div>
+
 
           <Button
             variant="link"
@@ -166,7 +150,7 @@ const AppLayout = ({
         </div>
 
 
-        {/* Main navigation */}
+        {/* Navigation */}
 
         <nav className="sidebar-navigation">
 
@@ -178,6 +162,7 @@ const AppLayout = ({
               </div>
             )}
 
+
             {mainItems.map(
               (item) => (
 
@@ -186,7 +171,7 @@ const AppLayout = ({
                   type="button"
                   className="sidebar-item"
                   onClick={() =>
-                    handleNavigation(
+                    navigate(
                       item.path,
                     )
                   }
@@ -215,7 +200,7 @@ const AppLayout = ({
           </div>
 
 
-          {/* Bottom navigation */}
+          {/* Bottom */}
 
           <div className="sidebar-bottom">
 
@@ -227,7 +212,7 @@ const AppLayout = ({
                   type="button"
                   className="sidebar-item"
                   onClick={() =>
-                    handleNavigation(
+                    navigate(
                       item.path,
                     )
                   }
@@ -253,8 +238,6 @@ const AppLayout = ({
               ),
             )}
 
-
-            {/* Logout */}
 
             <button
               type="button"
@@ -283,12 +266,9 @@ const AppLayout = ({
 
       </aside>
 
-
-      {/* Main content */}
-
       <main className="app-main">
 
-        {children}
+        <Outlet />
 
       </main>
 

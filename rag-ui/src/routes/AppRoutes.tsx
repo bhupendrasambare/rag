@@ -6,10 +6,9 @@ import {
 
 import AuthGuard from '../guards/AuthGuard';
 
-import AppLayout from '../layouts/AppLayout';
-
 import LoginPage from '../pages/LoginPage';
 import DashboardPage from '../pages/DashboardPage';
+import AppLayout from '../layouts/AppLayout';
 
 
 const AppRoutes = () => {
@@ -17,27 +16,33 @@ const AppRoutes = () => {
   return (
     <Routes>
 
+      {/* Public */}
+
       <Route
         path="/login"
         element={<LoginPage />}
       />
 
+
+      {/* Protected */}
+
       <Route element={<AuthGuard />}>
 
         <Route
-          element={
-            <AppLayout>
-              <Routes>
-                <Route
-                  path="/dashboard"
-                  element={<DashboardPage />}
-                />
-              </Routes>
-            </AppLayout>
-          }
-        />
+          element={<AppLayout />}
+        >
+
+          <Route
+            path="/dashboard"
+            element={<DashboardPage />}
+          />
+
+        </Route>
 
       </Route>
+
+
+      {/* Default */}
 
       <Route
         path="*"
