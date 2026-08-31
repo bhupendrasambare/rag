@@ -18,6 +18,7 @@
  */
 package com.document.rag.service;
 
+import com.document.rag.dto.request.ChangePasswordRequest;
 import com.document.rag.dto.request.LoginRequest;
 import com.document.rag.dto.request.RefreshTokenRequest;
 import com.document.rag.dto.request.SignupRequest;
@@ -35,4 +36,6 @@ public interface AuthService {
   void logout(String refreshToken);
 
   void saveRefreshToken(UserInfo user, String token);
+
+  void changePassword(ChangePasswordRequest request);
 }

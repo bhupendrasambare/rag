@@ -33,6 +33,8 @@ interface AuthState {
   logout: () => void;
 
   restoreSession: () => Promise<void>;
+
+  updateUser: (user: User) => void;
 }
 
 /*
@@ -178,6 +180,15 @@ export const useAuthStore =
         user: null,
         isAuthenticated: false,
         isInitializing: false,
+      });
+    },
+
+    updateUser: (user) => {
+
+      authStorage.setUser(user);
+
+      set({
+        user,
       });
     },
 

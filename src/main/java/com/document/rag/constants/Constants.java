@@ -33,4 +33,6 @@ public class Constants {
   public static final String FETCH_DOCUMENT_STATUS_SUCCESSFULLY =
       "Fetch document status successfully";
   public static final String DELETE_DOCUMENT_SUCCESSFULLY = "Deleted document successfully";
+  public static final String CHANGE_PASSWORD_SUCCESSFULLY =
+          "Password changed successfully.";
 }

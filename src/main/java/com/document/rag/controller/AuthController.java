@@ -19,6 +19,7 @@
 package com.document.rag.controller;
 
 import com.document.rag.constants.Constants;
+import com.document.rag.dto.request.ChangePasswordRequest;
 import com.document.rag.dto.request.LoginRequest;
 import com.document.rag.dto.request.RefreshTokenRequest;
 import com.document.rag.dto.request.SignupRequest;
@@ -71,5 +72,16 @@ public class AuthController {
     authService.logout(request.getRefreshToken());
 
     return ResponseEntity.ok(ApiResponses.success(Constants.LOGOUT_SUCCESSFULLY));
+  }
+
+  @PostMapping("/change-password")
+  public ResponseEntity<ApiResponse<?>> changePassword(
+          @Valid @RequestBody ChangePasswordRequest request) {
+
+    authService.changePassword(request);
+
+    return ResponseEntity.ok(
+            ApiResponses.success(
+                    Constants.CHANGE_PASSWORD_SUCCESSFULLY));
   }
 }

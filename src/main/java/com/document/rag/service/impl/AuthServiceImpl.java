@@ -19,16 +19,13 @@
 package com.document.rag.service.impl;
 
 import com.document.rag.constants.UserRole;
+import com.document.rag.dto.request.ChangePasswordRequest;
 import com.document.rag.dto.request.LoginRequest;
 import com.document.rag.dto.request.RefreshTokenRequest;
 import com.document.rag.dto.request.SignupRequest;
 import com.document.rag.dto.response.CustomUserDetails;
 import com.document.rag.dto.response.LoginResponse;
-import com.document.rag.exception.custom.InvalidCredentialsException;
-import com.document.rag.exception.custom.RefreshTokenExpiredException;
-import com.document.rag.exception.custom.RefreshTokenNotFoundException;
-import com.document.rag.exception.custom.RefreshTokenRevokedException;
-import com.document.rag.exception.custom.UserNotFoundException;
+import com.document.rag.exception.custom.*;
 import com.document.rag.jwt.JwtService;
 import com.document.rag.mapper.UserMapper;
 import com.document.rag.models.RefreshToken;
@@ -41,6 +38,8 @@ import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -198,6 +197,46 @@ public class AuthServiceImpl implements AuthService {
     this.refreshTokenRepository.save(refreshToken);
   }
 
+  @Override
+  @Transactional
+  public void changePassword(ChangePasswordRequest request) {
+
+    if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+      throw new PasswordMismatchException();
+    }
+
+    UserInfo user = getCurrentUser();
+
+    if (!this.passwordEncoder.matches(
+            request.getCurrentPassword(),
+            user.getPasswordHash())) {
+
+      throw new InvalidCurrentPasswordException();
+    }
+
+    if (this.passwordEncoder.matches(
+            request.getNewPassword(),
+            user.getPasswordHash())) {
+
+      throw new IllegalArgumentException(
+              "New password must be different from current password.");
+    }
+
+    user.setPasswordHash(
+            this.passwordEncoder.encode(
+                    request.getNewPassword()));
+
+    this.userRepository.save(user);
+
+    /*
+     * Revoke all refresh tokens.
+     *
+     * This forces existing sessions to authenticate
+     * again after a password change.
+     */
+    this.refreshTokenRepository.deleteByUserId(user.getId());
+  }
+
   private LoginResponse buildLoginResponse(UserInfo user, String accessToken, String refreshToken) {
 
     return LoginResponse.builder()
@@ -206,5 +245,19 @@ public class AuthServiceImpl implements AuthService {
         .expiresIn(this.jwtService.getAccessTokenExpiration())
         .user(this.userMapper.toUserResponse(user))
         .build();
+  }
+
+  private UserInfo getCurrentUser() {
+
+    Authentication authentication =
+            SecurityContextHolder
+                    .getContext()
+                    .getAuthentication();
+
+    String email = authentication.getName();
+
+    return this.userRepository
+            .findByEmail(email)
+            .orElseThrow(UserNotFoundException::new);
   }
 }

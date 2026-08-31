@@ -1,23 +1,33 @@
 import api from '../api/axios';
-import { API_ENDPOINTS } from '../api/endpoints';
-import type { User } from '../types/auth';
-import type { ApiResponse } from '../types/response';
 
+import appConfig from '../config/app.config';
+
+import type {
+  UpdateProfileRequest,
+  UserProfileResponse,
+} from '../types/auth';
 
 export const userService = {
 
-  async getProfile(): Promise<User> {
+  async getProfile(): Promise<UserProfileResponse> {
 
-    const response = await api.get<ApiResponse<User>>(
-      API_ENDPOINTS.USER.PROFILE,
-    );
-
-    if (!response.data.success || !response.data.data) {
-      throw new Error(
-        response.data.message ||
-        'Unable to fetch profile',
+    const response =
+      await api.get(
+        appConfig.endpoints.user.profile,
       );
-    }
+
+    return response.data.data;
+  },
+
+  async updateProfile(
+    request: UpdateProfileRequest,
+  ): Promise<UserProfileResponse> {
+
+    const response =
+      await api.put(
+        appConfig.endpoints.user.updateProfile,
+        request,
+      );
 
     return response.data.data;
   },

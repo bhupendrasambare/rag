@@ -11,6 +11,7 @@ const appConfig = {
       register: '/api/auth/signup',
       refresh: '/api/auth/refresh',
       logout: '/api/auth/logout',
+      changePassword:'/api/auth/change-password',
     },
 
     user: {

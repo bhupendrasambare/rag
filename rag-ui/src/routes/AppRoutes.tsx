@@ -9,6 +9,7 @@ import AuthGuard from '../guards/AuthGuard';
 import LoginPage from '../pages/LoginPage';
 import DashboardPage from '../pages/DashboardPage';
 import AppLayout from '../layouts/AppLayout';
+import SettingsPage from '../pages/SettingsPage';
 
 
 const AppRoutes = () => {
@@ -35,6 +36,11 @@ const AppRoutes = () => {
           <Route
             path="/dashboard"
             element={<DashboardPage />}
+          />
+
+          <Route
+            path="/settings"
+            element={<SettingsPage />}
           />
 
         </Route>
