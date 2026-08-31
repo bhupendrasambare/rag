@@ -19,6 +19,7 @@
 package com.document.rag.controller;
 
 import com.document.rag.constants.Constants;
+import com.document.rag.dto.request.PageRequestDto;
 import com.document.rag.dto.request.UploadDocumentRequest;
 import com.document.rag.dto.response.ApiResponse;
 import com.document.rag.dto.response.ApiResponses;
@@ -28,16 +29,16 @@ import com.document.rag.service.DocumentService;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -55,8 +56,16 @@ public class DocumentController {
             Constants.DOCUMENT_UPLOADED_SUCCESSFULLY, documentService.uploadFile(request)));
   }
 
-  @GetMapping
-  public ResponseEntity<ApiResponse<Page<DocumentResponse>>> getDocuments(Pageable pageable) {
+  @PostMapping("/fetch")
+  public ResponseEntity<ApiResponse<Page<DocumentResponse>>> getDocuments(@RequestBody PageRequestDto request) {
+
+    Pageable pageable =
+            PageRequest.of(
+                    request.getPage(),
+                    request.getSize(),
+                    Sort.by(
+                            Sort.Direction.DESC,
+                            "updatedAt"));
 
     return ResponseEntity.ok(
         ApiResponses.success(
@@ -80,6 +89,28 @@ public class DocumentController {
             Constants.FETCH_DOCUMENT_STATUS_SUCCESSFULLY, documentService.getDocumentStatus(id)));
   }
 
+  @GetMapping("/{id}/download")
+  public ResponseEntity<Resource> downloadDocument(
+          @PathVariable UUID id) {
+
+    Resource resource =
+            this.documentService.downloadDocument(id);
+
+    String fileName =
+            resource.getFilename();
+
+    return ResponseEntity.ok()
+            .contentType(MediaType.APPLICATION_PDF)
+            .header(
+                    HttpHeaders.CONTENT_DISPOSITION,
+                    ContentDisposition
+                            .attachment()
+                            .filename(fileName)
+                            .build()
+                            .toString())
+            .body(resource);
+  }
+
   @DeleteMapping("/{id}")
   public ResponseEntity<ApiResponse<?>> deleteDocument(@PathVariable UUID id) {
 
@@ -88,5 +119,4 @@ public class DocumentController {
     return ResponseEntity.ok(ApiResponses.success(Constants.DELETE_DOCUMENT_SUCCESSFULLY));
   }
 
-  // TODO : implement download api
 }

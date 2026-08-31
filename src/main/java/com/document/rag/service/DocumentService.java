@@ -22,6 +22,8 @@ import com.document.rag.dto.request.UploadDocumentRequest;
 import com.document.rag.dto.response.DocumentResponse;
 import com.document.rag.dto.response.DocumentStatusResponse;
 import java.util.UUID;
+
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -36,6 +38,8 @@ public interface DocumentService {
   DocumentResponse getDocument(UUID id);
 
   DocumentStatusResponse getDocumentStatus(UUID id);
+
+  Resource downloadDocument(UUID id);
 
   void deleteDocument(UUID id);
 }

@@ -19,6 +19,7 @@
 package com.document.rag.service.impl;
 
 import com.document.rag.constants.DocumentStatus;
+import com.document.rag.constants.FileType;
 import com.document.rag.dto.request.UploadDocumentRequest;
 import com.document.rag.dto.response.DocumentResponse;
 import com.document.rag.dto.response.DocumentStatusResponse;
@@ -36,13 +37,19 @@ import com.document.rag.service.UserService;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.document.rag.storage.FileStorageService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DocumentServiceImpl implements DocumentService {
@@ -51,6 +58,7 @@ public class DocumentServiceImpl implements DocumentService {
   private final DocumentMapper documentMapper;
   private final UserService userService;
   private final DocumentProcessingService documentProcessingService;
+  private final FileStorageService fileStorageService;
 
   @Override
   @Transactional
@@ -87,6 +95,12 @@ public class DocumentServiceImpl implements DocumentService {
       documentInfo.setDeleted(false);
       documentInfo.setCreatedAt(LocalDateTime.now());
       documentInfo.setUpdatedAt(LocalDateTime.now());
+      documentInfo.setEmbeddingModel("Internal");
+      documentInfo.setFileType(FileType.PDF);
+      documentInfo.setChatModel("Internal");
+      documentInfo.setMimeType("Internal");
+      documentInfo.setStoragePath("Internal");
+      documentInfo.setChecksum("Internal");
 
       documentInfo = this.documentInfoRepository.save(documentInfo);
       this.documentProcessingService.process(documentInfo, file);
@@ -99,11 +113,20 @@ public class DocumentServiceImpl implements DocumentService {
       return this.documentMapper.toResponse(documentInfo);
 
     } catch (DocumentInfoNotFoundException exception) {
+      log.error(
+              "Document upload failed. fileName={}, errorCode={}, message={}",
+              file != null ? file.getOriginalFilename() : null,
+              exception.getErrorCode(),
+              exception.getMessage(),
+              exception);
 
       throw exception;
 
     } catch (Exception exception) {
-
+      log.error(
+              "Unexpected error while uploading document. fileName={}",
+              file != null ? file.getOriginalFilename() : null,
+              exception);
       throw new DocumentUploadException();
     }
   }
@@ -139,6 +162,26 @@ public class DocumentServiceImpl implements DocumentService {
   }
 
   @Override
+  @Transactional(readOnly = true)
+  public Resource downloadDocument(UUID id) {
+    DocumentInfo documentInfo =
+            this.getDocumentInfo(id, false);
+
+    try {
+
+      return new FileSystemResource(
+              this.fileStorageService.getFile(
+                      documentInfo.getId(),
+                      documentInfo.getOriginalFileName()));
+
+    } catch (RuntimeException exception) {
+
+      throw exception;
+    }
+  }
+
+
+  @Override
   @Transactional
   public void deleteDocument(UUID id) {
 
@@ -154,7 +197,7 @@ public class DocumentServiceImpl implements DocumentService {
 
   private void validateUploadRequest(UploadDocumentRequest request) {
 
-    if (request != null && request.getFile() != null && request.getFile().isEmpty()) {
+    if (request != null && request.getFile() != null && !request.getFile().isEmpty()) {
       return;
     }
     throw new DocumentFileRequiredException();

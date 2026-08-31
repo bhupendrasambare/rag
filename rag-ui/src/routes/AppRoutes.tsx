@@ -10,6 +10,7 @@ import LoginPage from '../pages/LoginPage';
 import DashboardPage from '../pages/DashboardPage';
 import AppLayout from '../layouts/AppLayout';
 import SettingsPage from '../pages/SettingsPage';
+import DocumentsPage from '../pages/DocumentsPage';
 
 
 const AppRoutes = () => {
@@ -36,6 +37,11 @@ const AppRoutes = () => {
           <Route
             path="/dashboard"
             element={<DashboardPage />}
+          />
+
+          <Route
+            path="/documents"
+            element={<DocumentsPage />}
           />
 
           <Route

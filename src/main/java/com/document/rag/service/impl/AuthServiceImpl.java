@@ -207,24 +207,17 @@ public class AuthServiceImpl implements AuthService {
 
     UserInfo user = getCurrentUser();
 
-    if (!this.passwordEncoder.matches(
-            request.getCurrentPassword(),
-            user.getPasswordHash())) {
+    if (!this.passwordEncoder.matches(request.getCurrentPassword(), user.getPasswordHash())) {
 
       throw new InvalidCurrentPasswordException();
     }
 
-    if (this.passwordEncoder.matches(
-            request.getNewPassword(),
-            user.getPasswordHash())) {
+    if (this.passwordEncoder.matches(request.getNewPassword(), user.getPasswordHash())) {
 
-      throw new IllegalArgumentException(
-              "New password must be different from current password.");
+      throw new IllegalArgumentException("New password must be different from current password.");
     }
 
-    user.setPasswordHash(
-            this.passwordEncoder.encode(
-                    request.getNewPassword()));
+    user.setPasswordHash(this.passwordEncoder.encode(request.getNewPassword()));
 
     this.userRepository.save(user);
 
@@ -249,15 +242,10 @@ public class AuthServiceImpl implements AuthService {
 
   private UserInfo getCurrentUser() {
 
-    Authentication authentication =
-            SecurityContextHolder
-                    .getContext()
-                    .getAuthentication();
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
     String email = authentication.getName();
 
-    return this.userRepository
-            .findByEmail(email)
-            .orElseThrow(UserNotFoundException::new);
+    return this.userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
   }
 }

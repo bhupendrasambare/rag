@@ -13,12 +13,6 @@ interface RetryRequestConfig
   _retry?: boolean;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Main API client
-|--------------------------------------------------------------------------
-*/
-
 const api: AxiosInstance =
   axios.create({
     baseURL:
@@ -33,16 +27,6 @@ const api: AxiosInstance =
     },
   });
 
-/*
-|--------------------------------------------------------------------------
-| Refresh client
-|--------------------------------------------------------------------------
-|
-| This client MUST NOT have the
-| authentication interceptor.
-|
-*/
-
 const refreshClient =
   axios.create({
     baseURL:
@@ -56,12 +40,6 @@ const refreshClient =
         'application/json',
     },
   });
-
-/*
-|--------------------------------------------------------------------------
-| Add access token
-|--------------------------------------------------------------------------
-*/
 
 api.interceptors.request.use(
   (config) => {
@@ -78,18 +56,25 @@ api.interceptors.request.use(
         `Bearer ${accessToken}`;
     }
 
+    /*
+     * Let Axios/browser set the
+     * multipart boundary automatically.
+     */
+
+    if (
+      config.data instanceof FormData
+    ) {
+      delete config.headers[
+        'Content-Type'
+      ];
+    }
+
     return config;
   },
 
   (error) =>
     Promise.reject(error),
 );
-
-/*
-|--------------------------------------------------------------------------
-| Refresh lock
-|--------------------------------------------------------------------------
-*/
 
 let refreshPromise:
   Promise<string> | null = null;
@@ -113,10 +98,6 @@ const refreshAccessToken =
         'Refresh token not available.',
       );
     }
-
-    console.log(
-      '[AUTH] Starting token refresh...',
-    );
 
     const response =
       await refreshClient.post(
@@ -142,10 +123,6 @@ const refreshAccessToken =
       );
     }
 
-    /*
-     * Save BOTH rotated tokens.
-     */
-
     useAuthStore
       .getState()
       .updateTokens(
@@ -154,18 +131,9 @@ const refreshAccessToken =
         data.user,
       );
 
-    console.log(
-      '[AUTH] Token refresh successful.',
-    );
-
     return data.accessToken;
   };
 
-/*
-|--------------------------------------------------------------------------
-| Response interceptor
-|--------------------------------------------------------------------------
-*/
 
 api.interceptors.response.use(
   (response) =>
@@ -177,9 +145,6 @@ api.interceptors.response.use(
     const originalRequest =
       error.config as RetryRequestConfig;
 
-    /*
-     * Only process 401.
-     */
 
     if (
       error.response?.status !== 401 ||
@@ -187,10 +152,6 @@ api.interceptors.response.use(
     ) {
       return Promise.reject(error);
     }
-
-    /*
-     * Prevent infinite retry.
-     */
 
     if (
       originalRequest._retry
@@ -214,10 +175,6 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    /*
-     * If another request is already
-     * refreshing, wait for it.
-     */
 
     if (!refreshPromise) {
       refreshPromise =

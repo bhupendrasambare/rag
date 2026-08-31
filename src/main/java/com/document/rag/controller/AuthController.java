@@ -76,12 +76,10 @@ public class AuthController {
 
   @PostMapping("/change-password")
   public ResponseEntity<ApiResponse<?>> changePassword(
-          @Valid @RequestBody ChangePasswordRequest request) {
+      @Valid @RequestBody ChangePasswordRequest request) {
 
     authService.changePassword(request);
 
-    return ResponseEntity.ok(
-            ApiResponses.success(
-                    Constants.CHANGE_PASSWORD_SUCCESSFULLY));
+    return ResponseEntity.ok(ApiResponses.success(Constants.CHANGE_PASSWORD_SUCCESSFULLY));
   }
 }
