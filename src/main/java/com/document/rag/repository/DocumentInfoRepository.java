@@ -38,6 +38,7 @@ public interface DocumentInfoRepository extends JpaRepository<DocumentInfo, UUID
         SELECT d
         FROM DocumentInfo d
         WHERE d.userId = :userId
+        AND d.deleted != true
         ORDER BY d.createdAt DESC
         """)
   org.springframework.data.domain.Page<DocumentInfo> findAllByUserId(

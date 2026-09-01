@@ -57,15 +57,12 @@ public class DocumentController {
   }
 
   @PostMapping("/fetch")
-  public ResponseEntity<ApiResponse<Page<DocumentResponse>>> getDocuments(@RequestBody PageRequestDto request) {
+  public ResponseEntity<ApiResponse<Page<DocumentResponse>>> getDocuments(
+      @RequestBody PageRequestDto request) {
 
     Pageable pageable =
-            PageRequest.of(
-                    request.getPage(),
-                    request.getSize(),
-                    Sort.by(
-                            Sort.Direction.DESC,
-                            "updatedAt"));
+        PageRequest.of(
+            request.getPage(), request.getSize(), Sort.by(Sort.Direction.DESC, "updatedAt"));
 
     return ResponseEntity.ok(
         ApiResponses.success(
@@ -90,25 +87,18 @@ public class DocumentController {
   }
 
   @GetMapping("/{id}/download")
-  public ResponseEntity<Resource> downloadDocument(
-          @PathVariable UUID id) {
+  public ResponseEntity<Resource> downloadDocument(@PathVariable UUID id) {
 
-    Resource resource =
-            this.documentService.downloadDocument(id);
+    Resource resource = this.documentService.downloadDocument(id);
 
-    String fileName =
-            resource.getFilename();
+    String fileName = resource.getFilename();
 
     return ResponseEntity.ok()
-            .contentType(MediaType.APPLICATION_PDF)
-            .header(
-                    HttpHeaders.CONTENT_DISPOSITION,
-                    ContentDisposition
-                            .attachment()
-                            .filename(fileName)
-                            .build()
-                            .toString())
-            .body(resource);
+        .contentType(MediaType.APPLICATION_PDF)
+        .header(
+            HttpHeaders.CONTENT_DISPOSITION,
+            ContentDisposition.attachment().filename(fileName).build().toString())
+        .body(resource);
   }
 
   @DeleteMapping("/{id}")
@@ -118,5 +108,4 @@ public class DocumentController {
 
     return ResponseEntity.ok(ApiResponses.success(Constants.DELETE_DOCUMENT_SUCCESSFULLY));
   }
-
 }

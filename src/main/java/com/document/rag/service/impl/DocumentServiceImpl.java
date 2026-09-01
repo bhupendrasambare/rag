@@ -34,11 +34,10 @@ import com.document.rag.repository.DocumentInfoRepository;
 import com.document.rag.service.DocumentProcessingService;
 import com.document.rag.service.DocumentService;
 import com.document.rag.service.UserService;
+import com.document.rag.storage.FileStorageService;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
-
-import com.document.rag.storage.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
@@ -97,12 +96,10 @@ public class DocumentServiceImpl implements DocumentService {
       documentInfo.setUpdatedAt(LocalDateTime.now());
       documentInfo.setEmbeddingModel("Internal");
       documentInfo.setFileType(FileType.PDF);
-      documentInfo.setChatModel("Internal");
-      documentInfo.setMimeType("Internal");
-      documentInfo.setStoragePath("Internal");
-      documentInfo.setChecksum("Internal");
 
       documentInfo = this.documentInfoRepository.save(documentInfo);
+
+      this.fileStorageService.save(documentInfo.getId(), request.getFile());
       this.documentProcessingService.process(documentInfo, file);
 
       documentInfo =
@@ -114,19 +111,19 @@ public class DocumentServiceImpl implements DocumentService {
 
     } catch (DocumentInfoNotFoundException exception) {
       log.error(
-              "Document upload failed. fileName={}, errorCode={}, message={}",
-              file != null ? file.getOriginalFilename() : null,
-              exception.getErrorCode(),
-              exception.getMessage(),
-              exception);
+          "Document upload failed. fileName={}, errorCode={}, message={}",
+          file != null ? file.getOriginalFilename() : null,
+          exception.getErrorCode(),
+          exception.getMessage(),
+          exception);
 
       throw exception;
 
     } catch (Exception exception) {
       log.error(
-              "Unexpected error while uploading document. fileName={}",
-              file != null ? file.getOriginalFilename() : null,
-              exception);
+          "Unexpected error while uploading document. fileName={}",
+          file != null ? file.getOriginalFilename() : null,
+          exception);
       throw new DocumentUploadException();
     }
   }
@@ -164,22 +161,19 @@ public class DocumentServiceImpl implements DocumentService {
   @Override
   @Transactional(readOnly = true)
   public Resource downloadDocument(UUID id) {
-    DocumentInfo documentInfo =
-            this.getDocumentInfo(id, false);
+    DocumentInfo documentInfo = this.getDocumentInfo(id, false);
 
     try {
 
       return new FileSystemResource(
-              this.fileStorageService.getFile(
-                      documentInfo.getId(),
-                      documentInfo.getOriginalFileName()));
+          this.fileStorageService.getFile(
+              documentInfo.getId(), documentInfo.getOriginalFileName()));
 
     } catch (RuntimeException exception) {
 
       throw exception;
     }
   }
-
 
   @Override
   @Transactional

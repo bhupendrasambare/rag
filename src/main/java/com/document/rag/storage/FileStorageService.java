@@ -19,8 +19,8 @@
 package com.document.rag.storage;
 
 import com.document.rag.exception.custom.FileDeleteException;
-import com.document.rag.exception.custom.FileStorageException;
 import com.document.rag.exception.custom.FileNotFoundException;
+import com.document.rag.exception.custom.FileStorageException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -38,153 +38,131 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class FileStorageService {
 
-    @Value("${app.storage.document-path:storage/documents}")
-    private String documentStoragePath;
+  @Value("${app.storage.document-path:storage/documents}")
+  private String documentStoragePath;
 
-    /**
-     * Saves a document using the document UUID as the physical filename.
-     *
-     * Example:
-     * storage/documents/{documentId}.pdf
-     */
-    public String save(UUID documentId, MultipartFile file) {
+  /**
+   * Saves a document using the document UUID as the physical filename.
+   *
+   * <p>Example: storage/documents/{documentId}.pdf
+   */
+  public String save(UUID documentId, MultipartFile file) {
 
-        if (documentId == null) {
-            throw new FileStorageException("Document ID cannot be null.");
-        }
-
-        if (file == null || file.isEmpty()) {
-            throw new FileStorageException("File cannot be empty.");
-        }
-
-        try {
-
-            Path storageDirectory = getStorageDirectory();
-
-            Files.createDirectories(storageDirectory);
-
-            String extension = getExtension(file.getOriginalFilename());
-
-            String fileName = documentId + extension;
-
-            Path targetPath = storageDirectory.resolve(fileName).normalize();
-
-            /*
-             * Additional protection against path traversal.
-             */
-            if (!targetPath.getParent().equals(storageDirectory)) {
-                throw new FileStorageException("Invalid file path.");
-            }
-
-            try (InputStream inputStream = file.getInputStream()) {
-
-                Files.copy(
-                        inputStream,
-                        targetPath,
-                        StandardCopyOption.REPLACE_EXISTING);
-            }
-
-            return targetPath.toString();
-
-        } catch (IOException exception) {
-
-            throw new FileStorageException(
-                    "Unable to store the uploaded file.",
-                    exception);
-        }
+    if (documentId == null) {
+      throw new FileStorageException("Document ID cannot be null.");
     }
 
-    /**
-     * Retrieves the physical path of a document.
-     */
-    public Path getFile(UUID documentId, String originalFileName) {
-
-        if (documentId == null) {
-            throw new FileNotFoundException();
-        }
-
-        String extension = getExtension(originalFileName);
-
-        Path filePath =
-                getStorageDirectory()
-                        .resolve(documentId + extension)
-                        .normalize();
-
-        if (!filePath.getParent().equals(getStorageDirectory())) {
-            throw new FileNotFoundException();
-        }
-
-        if (!Files.exists(filePath) || !Files.isRegularFile(filePath)) {
-            throw new FileNotFoundException();
-        }
-
-        return filePath;
+    if (file == null || file.isEmpty()) {
+      throw new FileStorageException("File cannot be empty.");
     }
 
-    /**
-     * Reads the file as an InputStream.
-     */
-    public InputStream getInputStream(UUID documentId, String originalFileName) {
+    try {
 
-        Path filePath = getFile(documentId, originalFileName);
+      Path storageDirectory = getStorageDirectory();
 
-        try {
+      Files.createDirectories(storageDirectory);
 
-            return Files.newInputStream(filePath);
+      String extension = getExtension(file.getOriginalFilename());
 
-        } catch (IOException exception) {
+      String fileName = documentId + extension;
 
-            throw new FileStorageException(
-                    "Unable to read the stored file.",
-                    exception);
-        }
+      Path targetPath = storageDirectory.resolve(fileName).normalize();
+
+      /*
+       * Additional protection against path traversal.
+       */
+      if (!targetPath.getParent().equals(storageDirectory)) {
+        throw new FileStorageException("Invalid file path.");
+      }
+
+      try (InputStream inputStream = file.getInputStream()) {
+
+        Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
+      }
+
+      return targetPath.toString();
+
+    } catch (IOException exception) {
+
+      throw new FileStorageException("Unable to store the uploaded file.", exception);
+    }
+  }
+
+  /** Retrieves the physical path of a document. */
+  public Path getFile(UUID documentId, String originalFileName) {
+
+    if (documentId == null) {
+      throw new FileNotFoundException();
     }
 
-    /**
-     * Deletes the physical document.
-     */
-    public void delete(UUID documentId, String originalFileName) {
+    String extension = getExtension(originalFileName);
 
-        if (documentId == null) {
-            return;
-        }
+    Path filePath = getStorageDirectory().resolve(documentId + extension).normalize();
 
-        Path filePath = getFile(documentId, originalFileName);
-
-        try {
-
-            Files.deleteIfExists(filePath);
-
-        } catch (IOException exception) {
-
-            throw new FileDeleteException();
-        }
+    if (!filePath.getParent().equals(getStorageDirectory())) {
+      throw new FileNotFoundException();
     }
 
-    private Path getStorageDirectory() {
-
-        return Paths.get(documentStoragePath)
-                .toAbsolutePath()
-                .normalize();
+    if (!Files.exists(filePath) || !Files.isRegularFile(filePath)) {
+      throw new FileNotFoundException();
     }
 
-    private String getExtension(String fileName) {
+    return filePath;
+  }
 
-        if (!StringUtils.hasText(fileName)) {
-            return "";
-        }
+  /** Reads the file as an InputStream. */
+  public InputStream getInputStream(UUID documentId, String originalFileName) {
 
-        String cleanFileName =
-                Paths.get(fileName)
-                        .getFileName()
-                        .toString();
+    Path filePath = getFile(documentId, originalFileName);
 
-        int lastDot = cleanFileName.lastIndexOf('.');
+    try {
 
-        if (lastDot < 0) {
-            return "";
-        }
+      return Files.newInputStream(filePath);
 
-        return cleanFileName.substring(lastDot).toLowerCase();
+    } catch (IOException exception) {
+
+      throw new FileStorageException("Unable to read the stored file.", exception);
     }
+  }
+
+  /** Deletes the physical document. */
+  public void delete(UUID documentId, String originalFileName) {
+
+    if (documentId == null) {
+      return;
+    }
+
+    Path filePath = getFile(documentId, originalFileName);
+
+    try {
+
+      Files.deleteIfExists(filePath);
+
+    } catch (IOException exception) {
+
+      throw new FileDeleteException();
+    }
+  }
+
+  private Path getStorageDirectory() {
+
+    return Paths.get(documentStoragePath).toAbsolutePath().normalize();
+  }
+
+  private String getExtension(String fileName) {
+
+    if (!StringUtils.hasText(fileName)) {
+      return "";
+    }
+
+    String cleanFileName = Paths.get(fileName).getFileName().toString();
+
+    int lastDot = cleanFileName.lastIndexOf('.');
+
+    if (lastDot < 0) {
+      return "";
+    }
+
+    return cleanFileName.substring(lastDot).toLowerCase();
+  }
 }

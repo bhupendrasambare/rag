@@ -58,7 +58,7 @@ public class DocumentInfo {
   @Column(name = "embedding_model", nullable = false, length = 100)
   private String embeddingModel;
 
-  @Column(name = "chat_model", nullable = false, length = 100)
+  @Column(name = "chat_model", length = 100)
   private String chatModel;
 
   @Column(name = "file_name", nullable = false, length = 225)
@@ -71,16 +71,16 @@ public class DocumentInfo {
   @Enumerated(EnumType.STRING)
   private FileType fileType;
 
-  @Column(name = "mime_type", nullable = false, length = 100)
+  @Column(name = "mime_type", length = 100)
   private String mimeType;
 
   @Column(name = "file_size", nullable = false)
   private Long fileSize;
 
-  @Column(name = "storage_path", nullable = false, columnDefinition = "TEXT")
+  @Column(name = "storage_path", columnDefinition = "TEXT")
   private String storagePath;
 
-  @Column(name = "checksum", nullable = false, unique = true, length = 128)
+  @Column(name = "checksum", unique = true, length = 128)
   private String checksum;
 
   @Column(name = "status", nullable = false, length = 30)

@@ -24,7 +24,6 @@ import com.document.rag.exception.custom.BaseException;
 import jakarta.validation.ConstraintViolationException;
 import java.util.HashMap;
 import java.util.Map;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,23 +40,17 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ApiResponse<Object>> handleBaseException(BaseException ex) {
 
     log.error(
-            "Application exception. errorCode={}, message={}",
-            ex.getErrorCode(),
-            ex.getMessage(),
-            ex);
+        "Application exception. errorCode={}, message={}", ex.getErrorCode(), ex.getMessage(), ex);
 
     HttpStatus status = resolveHttpStatus(ex.getErrorCode());
 
     return ResponseEntity.status(status)
-            .body(
-                    ApiResponses.failure(
-                            ex.getErrorCode(),
-                            ex.getMessage()));
+        .body(ApiResponses.failure(ex.getErrorCode(), ex.getMessage()));
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ApiResponse<Object>> handleMethodValidation(
-          MethodArgumentNotValidException ex) {
+      MethodArgumentNotValidException ex) {
 
     Map<String, String> errors = new HashMap<>();
 
@@ -66,71 +59,45 @@ public class GlobalExceptionHandler {
     }
 
     return ResponseEntity.badRequest()
-            .body(
-                    ApiResponses.validation(
-                            ErrorCode.VALIDATION_ERROR,
-                            "Validation failed",
-                            errors));
+        .body(ApiResponses.validation(ErrorCode.VALIDATION_ERROR, "Validation failed", errors));
   }
 
   @ExceptionHandler(ConstraintViolationException.class)
-  public ResponseEntity<ApiResponse<Object>> handleConstraint(
-          ConstraintViolationException ex) {
+  public ResponseEntity<ApiResponse<Object>> handleConstraint(ConstraintViolationException ex) {
 
     Map<String, String> errors = new HashMap<>();
 
     ex.getConstraintViolations()
-            .forEach(
-                    violation ->
-                            errors.put(
-                                    violation.getPropertyPath().toString(),
-                                    violation.getMessage()));
+        .forEach(
+            violation ->
+                errors.put(violation.getPropertyPath().toString(), violation.getMessage()));
 
     return ResponseEntity.badRequest()
-            .body(
-                    ApiResponses.validation(
-                            ErrorCode.VALIDATION_ERROR,
-                            "Validation failed",
-                            errors));
+        .body(ApiResponses.validation(ErrorCode.VALIDATION_ERROR, "Validation failed", errors));
   }
 
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<ApiResponse<Object>> handleException(
-          Exception ex) {
+  public ResponseEntity<ApiResponse<Object>> handleException(Exception ex) {
 
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(
-                    ApiResponses.failure(
-                            ErrorCode.INTERNAL_SERVER_ERROR,
-                            "Something went wrong."));
+        .body(ApiResponses.failure(ErrorCode.INTERNAL_SERVER_ERROR, "Something went wrong."));
   }
 
   private HttpStatus resolveHttpStatus(ErrorCode errorCode) {
 
     return switch (errorCode) {
+      case INVALID_CREDENTIALS, REFRESH_TOKEN_INVALID, INVALID_TOKEN, TOKEN_EXPIRED, UNAUTHORIZED ->
+          HttpStatus.UNAUTHORIZED;
 
-      case INVALID_CREDENTIALS,
-              REFRESH_TOKEN_INVALID,
-              INVALID_TOKEN,
-              TOKEN_EXPIRED,
-              UNAUTHORIZED ->
-              HttpStatus.UNAUTHORIZED;
+      case ACCESS_DENIED -> HttpStatus.FORBIDDEN;
 
-      case ACCESS_DENIED ->
-              HttpStatus.FORBIDDEN;
+      case USER_NOT_FOUND, DOCUMENT_NOT_FOUND -> HttpStatus.NOT_FOUND;
 
-      case USER_NOT_FOUND,
-              DOCUMENT_NOT_FOUND ->
-              HttpStatus.NOT_FOUND;
+      case USER_ALREADY_EXISTS -> HttpStatus.CONFLICT;
 
-      case USER_ALREADY_EXISTS ->
-              HttpStatus.CONFLICT;
+      case VALIDATION_ERROR -> HttpStatus.BAD_REQUEST;
 
-      case VALIDATION_ERROR ->
-              HttpStatus.BAD_REQUEST;
-
-      default ->
-              HttpStatus.BAD_REQUEST;
+      default -> HttpStatus.BAD_REQUEST;
     };
   }
 }
