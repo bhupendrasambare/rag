@@ -20,6 +20,7 @@ package com.document.rag.service.impl;
 
 import com.document.rag.constants.DocumentStatus;
 import com.document.rag.constants.FileType;
+import com.document.rag.dto.DocumentUploadedEvent;
 import com.document.rag.dto.request.UploadDocumentRequest;
 import com.document.rag.dto.response.DocumentResponse;
 import com.document.rag.dto.response.DocumentStatusResponse;
@@ -40,6 +41,7 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -58,6 +60,7 @@ public class DocumentServiceImpl implements DocumentService {
   private final UserService userService;
   private final DocumentProcessingService documentProcessingService;
   private final FileStorageService fileStorageService;
+  private final ApplicationEventPublisher eventPublisher;
 
   @Override
   @Transactional
@@ -100,7 +103,8 @@ public class DocumentServiceImpl implements DocumentService {
       documentInfo = this.documentInfoRepository.save(documentInfo);
 
       this.fileStorageService.save(documentInfo.getId(), request.getFile());
-      this.documentProcessingService.process(documentInfo, file);
+
+      eventPublisher.publishEvent(new DocumentUploadedEvent(documentInfo.getId()));
 
       documentInfo =
           this.documentInfoRepository

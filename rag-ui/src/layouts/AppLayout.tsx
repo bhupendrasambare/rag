@@ -45,12 +45,6 @@ const mainItems: SidebarItem[] = [
     path: '/chat',
   },
 
-  {
-    label: 'Profile',
-    icon: 'bi-person',
-    path: '/profile',
-  },
-
 ];
 
 
@@ -196,7 +190,6 @@ const AppLayout = () => {
 
               ),
             )}
-
           </div>
 
 

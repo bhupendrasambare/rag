@@ -16,6 +16,14 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package com.document.rag.processor;
+package com.document.rag.service;
 
-public class DocumentReader {}
+import java.io.IOException;
+import java.util.List;
+import org.springframework.ai.document.Document;
+import org.springframework.core.io.Resource;
+
+public interface DocumentReaderService {
+
+  List<Document> read(Resource resource) throws IOException;
+}

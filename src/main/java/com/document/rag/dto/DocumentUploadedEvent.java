@@ -16,13 +16,8 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package com.document.rag.service;
+package com.document.rag.dto;
 
 import java.util.UUID;
 
-public interface DocumentProcessingService {
-
-  void process(UUID documentId);
-
-  void deleteVectors(UUID documentId);
-}
+public record DocumentUploadedEvent(UUID documentId) {}

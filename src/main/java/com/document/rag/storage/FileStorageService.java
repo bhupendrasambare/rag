@@ -28,33 +28,25 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Service
-@RequiredArgsConstructor
 public class FileStorageService {
 
   @Value("${app.storage.document-path:storage/documents}")
   private String documentStoragePath;
 
-  /**
-   * Saves a document using the document UUID as the physical filename.
-   *
-   * <p>Example: storage/documents/{documentId}.pdf
-   */
   public String save(UUID documentId, MultipartFile file) {
 
-    if (documentId == null) {
-      throw new FileStorageException("Document ID cannot be null.");
-    }
-
-    if (file == null || file.isEmpty()) {
-      throw new FileStorageException("File cannot be empty.");
-    }
+    validateDocumentId(documentId);
+    validateFile(file);
 
     try {
 
@@ -64,53 +56,63 @@ public class FileStorageService {
 
       String extension = getExtension(file.getOriginalFilename());
 
-      String fileName = documentId + extension;
+      String physicalFileName = documentId + extension;
 
-      Path targetPath = storageDirectory.resolve(fileName).normalize();
+      Path targetPath = storageDirectory.resolve(physicalFileName).normalize();
 
-      /*
-       * Additional protection against path traversal.
-       */
-      if (!targetPath.getParent().equals(storageDirectory)) {
-        throw new FileStorageException("Invalid file path.");
-      }
+      validatePath(targetPath, storageDirectory);
 
       try (InputStream inputStream = file.getInputStream()) {
 
         Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
       }
 
+      log.info("Document file stored successfully. documentId={}, path={}", documentId, targetPath);
+
       return targetPath.toString();
 
     } catch (IOException exception) {
+
+      log.error(
+          "Failed to store document file. documentId={}, fileName={}, message={}",
+          documentId,
+          file.getOriginalFilename(),
+          exception.getMessage(),
+          exception);
 
       throw new FileStorageException("Unable to store the uploaded file.", exception);
     }
   }
 
-  /** Retrieves the physical path of a document. */
   public Path getFile(UUID documentId, String originalFileName) {
 
-    if (documentId == null) {
-      throw new FileNotFoundException();
-    }
+    validateDocumentId(documentId);
+
+    Path storageDirectory = getStorageDirectory();
 
     String extension = getExtension(originalFileName);
 
-    Path filePath = getStorageDirectory().resolve(documentId + extension).normalize();
+    Path filePath = storageDirectory.resolve(documentId + extension).normalize();
 
-    if (!filePath.getParent().equals(getStorageDirectory())) {
-      throw new FileNotFoundException();
-    }
+    validatePath(filePath, storageDirectory);
 
     if (!Files.exists(filePath) || !Files.isRegularFile(filePath)) {
+
+      log.warn("Stored document file not found. documentId={}, path={}", documentId, filePath);
+
       throw new FileNotFoundException();
     }
 
     return filePath;
   }
 
-  /** Reads the file as an InputStream. */
+  public Resource getResource(UUID documentId, String originalFileName) {
+
+    Path filePath = getFile(documentId, originalFileName);
+
+    return new FileSystemResource(filePath);
+  }
+
   public InputStream getInputStream(UUID documentId, String originalFileName) {
 
     Path filePath = getFile(documentId, originalFileName);
@@ -121,24 +123,56 @@ public class FileStorageService {
 
     } catch (IOException exception) {
 
+      log.error(
+          "Unable to open stored document. documentId={}, path={}, message={}",
+          documentId,
+          filePath,
+          exception.getMessage(),
+          exception);
+
       throw new FileStorageException("Unable to read the stored file.", exception);
     }
   }
 
-  /** Deletes the physical document. */
   public void delete(UUID documentId, String originalFileName) {
 
     if (documentId == null) {
+
+      log.warn("Skipping file deletion because documentId is null.");
+
       return;
     }
 
-    Path filePath = getFile(documentId, originalFileName);
+    Path storageDirectory = getStorageDirectory();
+
+    String extension = getExtension(originalFileName);
+
+    Path filePath = storageDirectory.resolve(documentId + extension).normalize();
+
+    validatePath(filePath, storageDirectory);
 
     try {
 
-      Files.deleteIfExists(filePath);
+      boolean deleted = Files.deleteIfExists(filePath);
+
+      if (deleted) {
+
+        log.info(
+            "Document file deleted successfully. documentId={}, path={}", documentId, filePath);
+
+      } else {
+
+        log.debug("Document file was already absent. documentId={}, path={}", documentId, filePath);
+      }
 
     } catch (IOException exception) {
+
+      log.error(
+          "Failed to delete document file. documentId={}, path={}, message={}",
+          documentId,
+          filePath,
+          exception.getMessage(),
+          exception);
 
       throw new FileDeleteException();
     }
@@ -155,7 +189,16 @@ public class FileStorageService {
       return "";
     }
 
-    String cleanFileName = Paths.get(fileName).getFileName().toString();
+    String cleanFileName;
+
+    try {
+
+      cleanFileName = Paths.get(fileName).getFileName().toString();
+
+    } catch (Exception exception) {
+
+      throw new FileStorageException("Invalid file name.");
+    }
 
     int lastDot = cleanFileName.lastIndexOf('.');
 
@@ -163,6 +206,46 @@ public class FileStorageService {
       return "";
     }
 
-    return cleanFileName.substring(lastDot).toLowerCase();
+    String extension = cleanFileName.substring(lastDot).toLowerCase();
+
+    if (!extension.matches("\\.[a-z0-9]{1,10}")) {
+
+      throw new FileStorageException("Invalid file extension.");
+    }
+
+    return extension;
+  }
+
+  private void validatePath(Path targetPath, Path storageDirectory) {
+
+    Path normalizedDirectory = storageDirectory.toAbsolutePath().normalize();
+
+    Path normalizedTarget = targetPath.toAbsolutePath().normalize();
+
+    if (!normalizedTarget.startsWith(normalizedDirectory)) {
+
+      log.error(
+          "Path traversal attempt detected. directory={}, target={}",
+          normalizedDirectory,
+          normalizedTarget);
+
+      throw new FileStorageException("Invalid file path.");
+    }
+  }
+
+  private void validateDocumentId(UUID documentId) {
+
+    if (documentId == null) {
+
+      throw new FileStorageException("Document ID cannot be null.");
+    }
+  }
+
+  private void validateFile(MultipartFile file) {
+
+    if (file == null || file.isEmpty()) {
+
+      throw new FileStorageException("File cannot be empty.");
+    }
   }
 }

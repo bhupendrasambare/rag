@@ -16,6 +16,12 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package com.document.rag.processor;
+package com.document.rag.service;
 
-public class EmbeddingService {}
+import java.util.List;
+import org.springframework.ai.document.Document;
+
+public interface EmbeddingService {
+
+  List<Document> embed(List<Document> chunks);
+}
