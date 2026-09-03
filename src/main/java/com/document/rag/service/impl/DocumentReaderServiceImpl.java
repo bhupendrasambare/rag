@@ -18,6 +18,7 @@
  */
 package com.document.rag.service.impl;
 
+import com.document.rag.exception.custom.DocumentReadException;
 import com.document.rag.service.DocumentReaderService;
 import java.io.IOException;
 import java.util.List;
@@ -35,15 +36,7 @@ public class DocumentReaderServiceImpl implements DocumentReaderService {
   @Override
   public List<Document> read(Resource resource) throws IOException {
 
-    if (resource == null || !resource.exists()) {
-
-      throw new IOException("Document resource does not exist.");
-    }
-
-    if (!resource.isReadable()) {
-
-      throw new IOException("Document resource is not readable.");
-    }
+    validateResource(resource);
 
     try {
 
@@ -53,12 +46,21 @@ public class DocumentReaderServiceImpl implements DocumentReaderService {
 
       List<Document> documents = reader.get();
 
+      if (documents == null || documents.isEmpty()) {
+
+        log.warn("PDF document contains no readable content. filename={}", resource.getFilename());
+
+        throw new DocumentReadException();
+      }
+
       log.info(
-          "PDF reading completed. filename={}, pages={}",
-          resource.getFilename(),
-          documents != null ? documents.size() : 0);
+          "PDF reading completed. filename={}, pages={}", resource.getFilename(), documents.size());
 
       return documents;
+
+    } catch (DocumentReadException exception) {
+
+      throw exception;
 
     } catch (Exception exception) {
 
@@ -69,7 +71,48 @@ public class DocumentReaderServiceImpl implements DocumentReaderService {
           exception.getMessage(),
           exception);
 
+      throw new DocumentReadException();
+    }
+  }
+
+  private void validateResource(Resource resource) {
+
+    if (resource == null) {
+
+      log.warn("Document resource is null.");
+
+      throw new DocumentReadException();
+    }
+
+    try {
+
+      if (!resource.exists()) {
+
+        log.warn("Document resource does not exist. filename={}", resource.getFilename());
+
+        throw new DocumentReadException();
+      }
+
+      if (!resource.isReadable()) {
+
+        log.warn("Document resource is not readable. filename={}", resource.getFilename());
+
+        throw new DocumentReadException();
+      }
+
+    } catch (DocumentReadException exception) {
+
       throw exception;
+
+    } catch (Exception exception) {
+
+      log.error(
+          "Unable to validate document resource. filename={}, message={}",
+          resource.getFilename(),
+          exception.getMessage(),
+          exception);
+
+      throw new DocumentReadException();
     }
   }
 }

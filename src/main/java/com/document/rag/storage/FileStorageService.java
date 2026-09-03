@@ -21,6 +21,8 @@ package com.document.rag.storage;
 import com.document.rag.exception.custom.FileDeleteException;
 import com.document.rag.exception.custom.FileNotFoundException;
 import com.document.rag.exception.custom.FileStorageException;
+import com.document.rag.exception.custom.InvalidFileException;
+import com.document.rag.exception.custom.InvalidFileExtensionException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -36,7 +38,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-// TODO : make custom exception for this
 @Slf4j
 @Service
 public class FileStorageService {
@@ -187,7 +188,7 @@ public class FileStorageService {
   private String getExtension(String fileName) {
 
     if (!StringUtils.hasText(fileName)) {
-      return "";
+      throw new InvalidFileException();
     }
 
     String cleanFileName;
@@ -198,20 +199,27 @@ public class FileStorageService {
 
     } catch (Exception exception) {
 
-      throw new FileStorageException("Invalid file name.");
+      log.warn("Invalid file name received. fileName={}", fileName);
+
+      throw new InvalidFileException();
+    }
+
+    if (!StringUtils.hasText(cleanFileName)) {
+      throw new InvalidFileException();
     }
 
     int lastDot = cleanFileName.lastIndexOf('.');
 
-    if (lastDot < 0) {
-      return "";
+    if (lastDot <= 0 || lastDot == cleanFileName.length() - 1) {
+
+      throw new InvalidFileExtensionException();
     }
 
     String extension = cleanFileName.substring(lastDot).toLowerCase();
 
     if (!extension.matches("\\.[a-z0-9]{1,10}")) {
 
-      throw new FileStorageException("Invalid file extension.");
+      throw new InvalidFileExtensionException();
     }
 
     return extension;
@@ -226,7 +234,7 @@ public class FileStorageService {
     if (!normalizedTarget.startsWith(normalizedDirectory)) {
 
       log.error(
-          "Path traversal attempt detected. directory={}, target={}",
+          "Invalid file path detected. directory={}, target={}",
           normalizedDirectory,
           normalizedTarget);
 
@@ -238,7 +246,7 @@ public class FileStorageService {
 
     if (documentId == null) {
 
-      throw new FileStorageException("Document ID cannot be null.");
+      throw new InvalidFileException();
     }
   }
 
@@ -246,7 +254,12 @@ public class FileStorageService {
 
     if (file == null || file.isEmpty()) {
 
-      throw new FileStorageException("File cannot be empty.");
+      throw new InvalidFileException();
+    }
+
+    if (!StringUtils.hasText(file.getOriginalFilename())) {
+
+      throw new InvalidFileException();
     }
   }
 }
