@@ -36,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+// TODO : make custom exception for this
 @Slf4j
 @Service
 public class FileStorageService {
