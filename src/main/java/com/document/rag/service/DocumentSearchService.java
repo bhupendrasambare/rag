@@ -19,14 +19,9 @@
 package com.document.rag.service;
 
 import java.util.List;
-import java.util.UUID;
 import org.springframework.ai.document.Document;
 
-public interface VectorStoreService {
+public interface DocumentSearchService {
 
-  void save(List<Document> documents);
-
-  void delete(UUID documentId);
-
-  List<Document> similaritySearch(String query);
+  List<Document> search(String query);
 }

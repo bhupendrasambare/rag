@@ -16,13 +16,10 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-
 package com.document.rag.service.impl;
 
 import com.document.rag.constants.DocumentStatus;
-import com.document.rag.exception.custom.BaseException;
 import com.document.rag.exception.custom.DocumentInfoNotFoundException;
-import com.document.rag.exception.custom.DocumentNotEnoughTextException;
 import com.document.rag.exception.custom.DocumentNotReadableException;
 import com.document.rag.exception.custom.DocumentProcessingFailedException;
 import com.document.rag.models.DocumentInfo;
@@ -41,6 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.document.Document;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -59,19 +57,16 @@ public class DocumentProcessingServiceImpl implements DocumentProcessingService 
 
     log.info("Starting document processing pipeline. documentId={}", documentId);
 
-    DocumentInfo documentInfo = null;
-
     try {
 
-      documentInfo =
-          documentRepository.findById(documentId).orElseThrow(DocumentInfoNotFoundException::new);
+      DocumentInfo documentInfo = getDocument(documentId);
 
-      updateStatus(documentInfo, DocumentStatus.PROCESSING);
+      updateStatus(documentId, DocumentStatus.PROCESSING);
 
       Resource resource =
           fileStorageService.getResource(documentInfo.getId(), documentInfo.getOriginalFileName());
 
-      if (resource == null || !resource.exists() || !resource.isReadable()) {
+      if (resource == null || !resource.exists()) {
         throw new DocumentNotReadableException();
       }
 
@@ -92,7 +87,7 @@ public class DocumentProcessingServiceImpl implements DocumentProcessingService 
       List<Document> chunks = chunkService.chunk(documents);
 
       if (chunks == null || chunks.isEmpty()) {
-        throw new DocumentNotEnoughTextException();
+        throw new DocumentProcessingFailedException();
       }
 
       log.info("Document chunking completed. documentId={}, chunks={}", documentId, chunks.size());
@@ -117,31 +112,19 @@ public class DocumentProcessingServiceImpl implements DocumentProcessingService 
           documentId,
           embeddedChunks.size());
 
-      documentInfo.setStatus(DocumentStatus.COMPLETED);
+      markCompleted(documentId, embeddedChunks.size());
 
-      documentInfo.setChunkCount((long) embeddedChunks.size());
+      log.info("Document processing completed successfully. documentId={}", documentId);
 
-      documentInfo.setProcessedAt(LocalDateTime.now());
-
-      documentInfo.setUpdatedAt(LocalDateTime.now());
-
-      documentRepository.save(documentInfo);
-
-      log.info(
-          "Document processing completed successfully. documentId={}, chunks={}",
-          documentId,
-          embeddedChunks.size());
-
-    } catch (BaseException exception) {
+    } catch (DocumentProcessingFailedException exception) {
 
       log.error(
-          "Document processing failed. documentId={}, errorCode={}, message={}",
+          "Document processing failed. documentId={}, message={}",
           documentId,
-          exception.getErrorCode(),
           exception.getMessage(),
           exception);
 
-      markFailed(documentInfo);
+      markFailed(documentId);
 
       throw exception;
 
@@ -154,9 +137,59 @@ public class DocumentProcessingServiceImpl implements DocumentProcessingService 
           exception.getMessage(),
           exception);
 
-      markFailed(documentInfo);
+      markFailed(documentId);
 
       throw new DocumentProcessingFailedException();
+    }
+  }
+
+  private DocumentInfo getDocument(UUID documentId) {
+    return documentRepository.findById(documentId).orElseThrow(DocumentInfoNotFoundException::new);
+  }
+
+  @Transactional
+  protected void updateStatus(UUID documentId, DocumentStatus status) {
+
+    DocumentInfo documentInfo = getDocument(documentId);
+
+    documentInfo.setStatus(status);
+    documentInfo.setUpdatedAt(LocalDateTime.now());
+
+    documentRepository.save(documentInfo);
+  }
+
+  @Transactional
+  protected void markCompleted(UUID documentId, long chunkCount) {
+
+    DocumentInfo documentInfo = getDocument(documentId);
+
+    documentInfo.setStatus(DocumentStatus.COMPLETED);
+    documentInfo.setChunkCount(chunkCount);
+    documentInfo.setProcessedAt(LocalDateTime.now());
+    documentInfo.setUpdatedAt(LocalDateTime.now());
+
+    documentRepository.save(documentInfo);
+  }
+
+  @Transactional
+  protected void markFailed(UUID documentId) {
+
+    try {
+
+      DocumentInfo documentInfo = getDocument(documentId);
+
+      documentInfo.setStatus(DocumentStatus.FAILED);
+      documentInfo.setUpdatedAt(LocalDateTime.now());
+
+      documentRepository.save(documentInfo);
+
+    } catch (Exception exception) {
+
+      log.error(
+          "Failed to persist FAILED document status. documentId={}, message={}",
+          documentId,
+          exception.getMessage(),
+          exception);
     }
   }
 
@@ -173,60 +206,13 @@ public class DocumentProcessingServiceImpl implements DocumentProcessingService 
 
   private void enrichMetadata(List<Document> chunks, DocumentInfo documentInfo) {
 
-    String documentId = documentInfo.getId().toString();
+    for (Document chunk : chunks) {
 
-    String userId = documentInfo.getUserId().toString();
+      chunk.getMetadata().put("documentId", documentInfo.getId().toString());
 
-    String fileName = documentInfo.getFileName();
+      chunk.getMetadata().put("userId", documentInfo.getUserId().toString());
 
-    int totalChunks = chunks.size();
-
-    for (int index = 0; index < totalChunks; index++) {
-
-      Document chunk = chunks.get(index);
-
-      chunk.getMetadata().put("documentId", documentId);
-
-      chunk.getMetadata().put("userId", userId);
-
-      chunk.getMetadata().put("fileName", fileName);
-
-      chunk.getMetadata().put("chunkIndex", index);
-
-      chunk.getMetadata().put("totalChunks", totalChunks);
-    }
-  }
-
-  private void updateStatus(DocumentInfo documentInfo, DocumentStatus status) {
-
-    documentInfo.setStatus(status);
-
-    documentInfo.setUpdatedAt(LocalDateTime.now());
-
-    documentRepository.save(documentInfo);
-  }
-
-  private void markFailed(DocumentInfo documentInfo) {
-
-    if (documentInfo == null) {
-      return;
-    }
-
-    try {
-
-      documentInfo.setStatus(DocumentStatus.FAILED);
-
-      documentInfo.setUpdatedAt(LocalDateTime.now());
-
-      documentRepository.save(documentInfo);
-
-    } catch (Exception exception) {
-
-      log.error(
-          "Failed to persist FAILED document status. documentId={}, message={}",
-          documentInfo.getId(),
-          exception.getMessage(),
-          exception);
+      chunk.getMetadata().put("fileName", documentInfo.getOriginalFileName());
     }
   }
 }

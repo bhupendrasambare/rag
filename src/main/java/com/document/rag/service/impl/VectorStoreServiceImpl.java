@@ -24,6 +24,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.document.Document;
+import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Service;
 
@@ -81,5 +82,12 @@ public class VectorStoreServiceImpl implements VectorStoreService {
 
       throw exception;
     }
+  }
+
+  @Override
+  public List<Document> similaritySearch(String query) {
+    SearchRequest searchRequest = SearchRequest.builder().query(query).topK(5).build();
+
+    return vectorStore.similaritySearch(searchRequest);
   }
 }

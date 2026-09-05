@@ -16,17 +16,27 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package com.document.rag.service;
+package com.document.rag.service.impl;
 
+import com.document.rag.service.DocumentSearchService;
+import com.document.rag.service.VectorStoreService;
 import java.util.List;
-import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.ai.document.Document;
+import org.springframework.stereotype.Service;
 
-public interface VectorStoreService {
+@Service
+@RequiredArgsConstructor
+public class DocumentSearchServiceImpl implements DocumentSearchService {
 
-  void save(List<Document> documents);
+  private final VectorStoreService vectorStoreService;
 
-  void delete(UUID documentId);
+  @Override
+  public List<Document> search(String query) {
+    if (query == null || query.isBlank()) {
+      throw new IllegalArgumentException("Search query cannot be empty.");
+    }
 
-  List<Document> similaritySearch(String query);
+    return vectorStoreService.similaritySearch(query);
+  }
 }

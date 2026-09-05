@@ -16,17 +16,26 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package com.document.rag.service;
+package com.document.rag.controller;
 
+import com.document.rag.service.DocumentSearchService;
 import java.util.List;
-import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.ai.document.Document;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-public interface VectorStoreService {
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/search")
+public class DocumentSearchController {
 
-  void save(List<Document> documents);
+  private final DocumentSearchService documentSearchService;
 
-  void delete(UUID documentId);
-
-  List<Document> similaritySearch(String query);
+  @GetMapping
+  public List<Document> search(@RequestParam String query) {
+    return documentSearchService.search(query);
+  }
 }
