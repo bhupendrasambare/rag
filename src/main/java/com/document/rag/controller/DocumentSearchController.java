@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/search")
+@RequestMapping("/api/document/search")
 public class DocumentSearchController {
 
   private final DocumentSearchService documentSearchService;
