@@ -36,6 +36,6 @@ public class DocumentSearchController {
 
   @GetMapping
   public List<Document> search(@RequestParam String query) {
-    return documentSearchService.search(query);
+    return documentSearchService.search(query, 1);
   }
 }

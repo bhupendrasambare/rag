@@ -85,9 +85,12 @@ public class VectorStoreServiceImpl implements VectorStoreService {
   }
 
   @Override
-  public List<Document> similaritySearch(String query) {
-    SearchRequest searchRequest = SearchRequest.builder().query(query).topK(5).build();
+  public List<Document> similaritySearch(String query, int topK) {
+      SearchRequest searchRequest = SearchRequest.builder()
+              .query(query)
+              .topK(topK)
+              .build();
 
-    return vectorStore.similaritySearch(searchRequest);
+      return vectorStore.similaritySearch(searchRequest);
   }
 }

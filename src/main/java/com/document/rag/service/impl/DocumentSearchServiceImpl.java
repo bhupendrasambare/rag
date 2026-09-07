@@ -32,11 +32,15 @@ public class DocumentSearchServiceImpl implements DocumentSearchService {
   private final VectorStoreService vectorStoreService;
 
   @Override
-  public List<Document> search(String query) {
+  public List<Document> search(String query, int topK) {
     if (query == null || query.isBlank()) {
       throw new IllegalArgumentException("Search query cannot be empty.");
     }
 
-    return vectorStoreService.similaritySearch(query);
+    if (topK < 1 || topK > 20) {
+      throw new IllegalArgumentException("topK must be between 1 and 20.");
+    }
+
+    return vectorStoreService.similaritySearch(query, topK);
   }
 }

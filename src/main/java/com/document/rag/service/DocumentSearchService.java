@@ -23,5 +23,5 @@ import org.springframework.ai.document.Document;
 
 public interface DocumentSearchService {
 
-  List<Document> search(String query);
+  List<Document> search(String query, int topK);
 }
