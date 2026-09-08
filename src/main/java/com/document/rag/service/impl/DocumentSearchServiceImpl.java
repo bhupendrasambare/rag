@@ -18,9 +18,13 @@
  */
 package com.document.rag.service.impl;
 
+import com.document.rag.config.RagSearchProperties;
 import com.document.rag.service.DocumentSearchService;
+import com.document.rag.service.UserService;
 import com.document.rag.service.VectorStoreService;
 import java.util.List;
+import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.document.Document;
 import org.springframework.stereotype.Service;
@@ -30,6 +34,10 @@ import org.springframework.stereotype.Service;
 public class DocumentSearchServiceImpl implements DocumentSearchService {
 
   private final VectorStoreService vectorStoreService;
+
+  private final UserService userService;
+
+  private final RagSearchProperties searchProperties;
 
   @Override
   public List<Document> search(String query, int topK) {
@@ -41,6 +49,13 @@ public class DocumentSearchServiceImpl implements DocumentSearchService {
       throw new IllegalArgumentException("topK must be between 1 and 20.");
     }
 
-    return vectorStoreService.similaritySearch(query, topK);
+    UUID userId = userService.getProfile().getId();
+
+    return vectorStoreService.similaritySearch(
+            query,
+            searchProperties.getTopK(),
+            searchProperties.getSimilarityThreshold(),
+            userId
+    );
   }
 }

@@ -85,12 +85,22 @@ public class VectorStoreServiceImpl implements VectorStoreService {
   }
 
   @Override
-  public List<Document> similaritySearch(String query, int topK) {
-      SearchRequest searchRequest = SearchRequest.builder()
-              .query(query)
-              .topK(topK)
-              .build();
+  public List<Document> similaritySearch(
+          String query,
+          int topK,
+          double similarityThreshold,
+          UUID userId) {
 
-      return vectorStore.similaritySearch(searchRequest);
+    String filterExpression =
+            "userId == '" + userId + "'";
+
+    SearchRequest searchRequest = SearchRequest.builder()
+            .query(query)
+            .topK(topK)
+            .similarityThreshold(similarityThreshold)
+            .filterExpression(filterExpression)
+            .build();
+
+    return vectorStore.similaritySearch(searchRequest);
   }
 }
