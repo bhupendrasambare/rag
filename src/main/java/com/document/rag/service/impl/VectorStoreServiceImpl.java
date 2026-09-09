@@ -86,15 +86,12 @@ public class VectorStoreServiceImpl implements VectorStoreService {
 
   @Override
   public List<Document> similaritySearch(
-          String query,
-          int topK,
-          double similarityThreshold,
-          UUID userId) {
+      String query, int topK, double similarityThreshold, UUID userId) {
 
-    String filterExpression =
-            "userId == '" + userId + "'";
+    String filterExpression = "userId == '" + userId + "'";
 
-    SearchRequest searchRequest = SearchRequest.builder()
+    SearchRequest searchRequest =
+        SearchRequest.builder()
             .query(query)
             .topK(topK)
             .similarityThreshold(similarityThreshold)

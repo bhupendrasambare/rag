@@ -24,7 +24,6 @@ import com.document.rag.service.UserService;
 import com.document.rag.service.VectorStoreService;
 import java.util.List;
 import java.util.UUID;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.document.Document;
 import org.springframework.stereotype.Service;
@@ -52,10 +51,6 @@ public class DocumentSearchServiceImpl implements DocumentSearchService {
     UUID userId = userService.getProfile().getId();
 
     return vectorStoreService.similaritySearch(
-            query,
-            searchProperties.getTopK(),
-            searchProperties.getSimilarityThreshold(),
-            userId
-    );
+        query, searchProperties.getTopK(), searchProperties.getSimilarityThreshold(), userId);
   }
 }

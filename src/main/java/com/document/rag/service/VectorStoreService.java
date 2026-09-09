@@ -28,9 +28,5 @@ public interface VectorStoreService {
 
   void delete(UUID documentId);
 
-  List<Document> similaritySearch(
-          String query,
-          int topK,
-          double similarityThreshold,
-          UUID userId);
+  List<Document> similaritySearch(String query, int topK, double similarityThreshold, UUID userId);
 }
