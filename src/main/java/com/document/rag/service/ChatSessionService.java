@@ -18,7 +18,7 @@
  */
 package com.document.rag.service;
 
-import com.document.rag.dto.request.ChatSessionResponse;
+import com.document.rag.dto.response.ChatSessionResponse;
 import com.document.rag.dto.request.CreateChatSessionRequest;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
