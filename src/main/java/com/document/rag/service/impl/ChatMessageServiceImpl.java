@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2026 Bhupendra Sambare
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied.
+ *
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ */
 package com.document.rag.service.impl;
 
 import com.document.rag.chat.RagChatService;
@@ -5,164 +23,135 @@ import com.document.rag.constants.ChatRole;
 import com.document.rag.dto.request.SendChatMessageRequest;
 import com.document.rag.dto.response.ChatMessageResponse;
 import com.document.rag.exception.ChatSessionNotFoundException;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
-
 import com.document.rag.models.ChatMessage;
 import com.document.rag.models.ChatSession;
 import com.document.rag.repository.ChatMessageRepository;
 import com.document.rag.repository.ChatSessionRepository;
 import com.document.rag.service.ChatMessageService;
 import com.document.rag.service.UserService;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class ChatMessageServiceImpl
-        implements ChatMessageService {
+public class ChatMessageServiceImpl implements ChatMessageService {
 
-    private final ChatMessageRepository chatMessageRepository;
-    private final ChatSessionRepository chatSessionRepository;
-    private final UserService userService;
-    private final RagChatService ragChatService;
+  private final ChatMessageRepository chatMessageRepository;
+  private final ChatSessionRepository chatSessionRepository;
+  private final UserService userService;
+  private final RagChatService ragChatService;
 
-    @Override
-    public ChatMessageResponse sendMessage(
-            UUID sessionId,
-            SendChatMessageRequest request) {
+  @Override
+  public ChatMessageResponse sendMessage(UUID sessionId, SendChatMessageRequest request) {
 
-        UUID userId = userService.getProfile().getId();
+    UUID userId = userService.getProfile().getId();
 
-        ChatSession session =
-                getOwnedSession(sessionId, userId);
+    ChatSession session = getOwnedSession(sessionId, userId);
 
-        String question = request.message().trim();
+    String question = request.message().trim();
 
-        ChatMessage userMessage =
-                saveUserMessage(session.getId(), question);
+    ChatMessage userMessage = saveUserMessage(session.getId(), question);
 
-        try {
+    try {
 
-            String answer =
-                    ragChatService.chat(question, userId);
+      String answer = ragChatService.chat(question, userId);
 
-            ChatMessage assistantMessage =
-                    saveAssistantMessage(
-                            session.getId(),
-                            answer
-                    );
+      ChatMessage assistantMessage = saveAssistantMessage(session.getId(), answer);
 
-            return toResponse(assistantMessage);
+      return toResponse(assistantMessage);
 
-        } catch (RuntimeException exception) {
+    } catch (RuntimeException exception) {
 
-            /*
-             * The USER message has already been committed.
-             *
-             * We intentionally do not delete it if the RAG
-             * operation fails. It represents what the user sent.
-             */
+      /*
+       * The USER message has already been committed.
+       *
+       * We intentionally do not delete it if the RAG
+       * operation fails. It represents what the user sent.
+       */
 
-            throw exception;
-        }
+      throw exception;
     }
+  }
 
-    @Override
-    public List<ChatMessageResponse> getMessages(
-            UUID sessionId) {
+  @Override
+  public List<ChatMessageResponse> getMessages(UUID sessionId) {
 
-        UUID userId = userService.getProfile().getId();
+    UUID userId = userService.getProfile().getId();
 
-        getOwnedSession(sessionId, userId);
+    getOwnedSession(sessionId, userId);
 
-        return chatMessageRepository
-                .findAllByChatSessionIdOrderByCreatedAtAsc(sessionId)
-                .stream()
-                .map(this::toResponse)
-                .toList();
-    }
+    return chatMessageRepository.findAllByChatSessionIdOrderByCreatedAtAsc(sessionId).stream()
+        .map(this::toResponse)
+        .toList();
+  }
 
-    private ChatSession getOwnedSession(
-            UUID sessionId,
-            UUID userId) {
+  private ChatSession getOwnedSession(UUID sessionId, UUID userId) {
 
-        return chatSessionRepository
-                .findByIdAndUserId(sessionId, userId)
-                .orElseThrow(
-                        ChatSessionNotFoundException::new
-                );
-    }
+    return chatSessionRepository
+        .findByIdAndUserId(sessionId, userId)
+        .orElseThrow(ChatSessionNotFoundException::new);
+  }
 
-    @Transactional
-    protected ChatMessage saveUserMessage(
-            UUID sessionId,
-            String message) {
+  @Transactional
+  protected ChatMessage saveUserMessage(UUID sessionId, String message) {
 
-        LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = LocalDateTime.now();
 
-        ChatMessage chatMessage = ChatMessage.builder()
-                .id(UUID.randomUUID())
-                .chatSessionId(sessionId)
-                .role(ChatRole.USER)
-                .message(message)
-                .createdAt(now)
-                .build();
+    ChatMessage chatMessage =
+        ChatMessage.builder()
+            .id(UUID.randomUUID())
+            .chatSessionId(sessionId)
+            .role(ChatRole.USER)
+            .message(message)
+            .createdAt(now)
+            .build();
 
-        ChatMessage saved =
-                chatMessageRepository.save(chatMessage);
+    ChatMessage saved = chatMessageRepository.save(chatMessage);
 
-        updateSessionTimestamp(sessionId, now);
+    updateSessionTimestamp(sessionId, now);
 
-        return saved;
-    }
+    return saved;
+  }
 
-    @Transactional
-    protected ChatMessage saveAssistantMessage(
-            UUID sessionId,
-            String message) {
+  @Transactional
+  protected ChatMessage saveAssistantMessage(UUID sessionId, String message) {
 
-        LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = LocalDateTime.now();
 
-        ChatMessage chatMessage = ChatMessage.builder()
-                .id(UUID.randomUUID())
-                .chatSessionId(sessionId)
-                .role(ChatRole.ASSISTANT)
-                .message(message)
-                .createdAt(now)
-                .build();
+    ChatMessage chatMessage =
+        ChatMessage.builder()
+            .id(UUID.randomUUID())
+            .chatSessionId(sessionId)
+            .role(ChatRole.ASSISTANT)
+            .message(message)
+            .createdAt(now)
+            .build();
 
-        ChatMessage saved =
-                chatMessageRepository.save(chatMessage);
+    ChatMessage saved = chatMessageRepository.save(chatMessage);
 
-        updateSessionTimestamp(sessionId, now);
+    updateSessionTimestamp(sessionId, now);
 
-        return saved;
-    }
+    return saved;
+  }
 
-    private void updateSessionTimestamp(
-            UUID sessionId,
-            LocalDateTime updatedAt) {
+  private void updateSessionTimestamp(UUID sessionId, LocalDateTime updatedAt) {
 
-        chatSessionRepository.findById(sessionId)
-                .ifPresent(session -> {
-                    session.setUpdatedAt(updatedAt);
-                    chatSessionRepository.save(session);
-                });
-    }
+    chatSessionRepository
+        .findById(sessionId)
+        .ifPresent(
+            session -> {
+              session.setUpdatedAt(updatedAt);
+              chatSessionRepository.save(session);
+            });
+  }
 
-    private ChatMessageResponse toResponse(
-            ChatMessage message) {
+  private ChatMessageResponse toResponse(ChatMessage message) {
 
-        return new ChatMessageResponse(
-                message.getId(),
-                message.getRole(),
-                message.getMessage(),
-                message.getCreatedAt()
-        );
-    }
+    return new ChatMessageResponse(
+        message.getId(), message.getRole(), message.getMessage(), message.getCreatedAt());
+  }
 }

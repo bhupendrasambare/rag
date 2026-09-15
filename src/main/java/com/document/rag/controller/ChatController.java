@@ -35,7 +35,7 @@ public class ChatController {
   @PostMapping
   public ChatResponse chat(@Valid @RequestBody ChatRequest request) {
 
-    String answer = ragChatService.chat(request.question());
+    String answer = ragChatService.chat(request.question(), null);
 
     return new ChatResponse(answer);
   }

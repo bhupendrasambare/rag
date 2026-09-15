@@ -18,38 +18,32 @@
  */
 package com.document.rag.controller;
 
-import com.document.rag.dto.request.CreateChatSessionRequest;
-import com.document.rag.dto.response.ChatSessionResponse;
-import com.document.rag.service.ChatSessionService;
+import com.document.rag.dto.request.SendChatMessageRequest;
+import com.document.rag.dto.response.ChatMessageResponse;
+import com.document.rag.service.ChatMessageService;
+import jakarta.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/chat/sessions")
-public class ChatSessionController {
+@RequestMapping("/api/chat/sessions/{sessionId}/messages")
+public class ChatMessageController {
 
-  private final ChatSessionService chatSessionService;
+  private final ChatMessageService chatMessageService;
 
   @PostMapping
-  public ChatSessionResponse createSession(
-      @RequestBody(required = false) CreateChatSessionRequest request) {
+  public ChatMessageResponse sendMessage(
+      @PathVariable UUID sessionId, @Valid @RequestBody SendChatMessageRequest request) {
 
-    return chatSessionService.create(request);
+    return chatMessageService.sendMessage(sessionId, request);
   }
 
   @GetMapping
-  public Page<ChatSessionResponse> getSessions(Pageable pageable) {
+  public List<ChatMessageResponse> getMessages(@PathVariable UUID sessionId) {
 
-    return chatSessionService.getSessions(pageable);
-  }
-
-  @GetMapping("/{sessionId}")
-  public ChatSessionResponse getSession(@PathVariable UUID sessionId) {
-
-    return chatSessionService.getSession(sessionId);
+    return chatMessageService.getMessages(sessionId);
   }
 }

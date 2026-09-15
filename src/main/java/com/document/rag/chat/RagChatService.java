@@ -32,13 +32,15 @@ public class RagChatService {
   private final ChatClient chatClient;
   private final UserService userService;
 
-  public String chat(String question) {
+  public String chat(String question, UUID userId) {
 
     if (question == null || question.isBlank()) {
       throw new IllegalArgumentException("Question cannot be empty.");
     }
 
-    UUID userId = userService.getProfile().getId();
+    if (userId == null) {
+      userId = userService.getProfile().getId();
+    }
 
     String filterExpression = "userId == '" + userId + "'";
 
