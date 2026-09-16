@@ -18,6 +18,7 @@
  */
 package com.document.rag;
 
+import com.document.rag.config.ChatMemoryProperties;
 import com.document.rag.config.RagSearchProperties;
 import com.document.rag.properties.JwtProperties;
 import org.springframework.boot.SpringApplication;
@@ -27,7 +28,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 @EnableAsync
 @SpringBootApplication
-@EnableConfigurationProperties({JwtProperties.class, RagSearchProperties.class})
+@EnableConfigurationProperties({JwtProperties.class, RagSearchProperties.class, ChatMemoryProperties.class})
 public class RagApplication {
 
   public static void main(String[] args) {

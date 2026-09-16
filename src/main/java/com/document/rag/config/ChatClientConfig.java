@@ -36,17 +36,19 @@ public class ChatClientConfig {
       ChatModel chatModel, VectorStore vectorStore, RagSearchProperties searchProperties) {
 
     QuestionAnswerAdvisor questionAnswerAdvisor =
-        QuestionAnswerAdvisor.builder(vectorStore)
-            .searchRequest(
-                SearchRequest.builder()
-                    .topK(searchProperties.getTopK())
-                    .similarityThreshold(searchProperties.getSimilarityThreshold())
-                    .build())
-            .build();
+            QuestionAnswerAdvisor.builder(vectorStore)
+                    .searchRequest(
+                            SearchRequest.builder()
+                                    .topK(searchProperties.getTopK())
+                                    .similarityThreshold(
+                                            searchProperties
+                                                    .getSimilarityThreshold())
+                                    .build()
+                    )
+                    .build();
 
     return ChatClient.builder(chatModel)
-        .defaultSystem(
-            """
+            .defaultSystem("""
                 You are a document question-answering assistant.
 
                 Answer questions using only the information provided
@@ -58,7 +60,7 @@ public class ChatClientConfig {
 
                 Do not invent facts or use unsupported information.
                 """)
-        .defaultAdvisors(questionAnswerAdvisor)
-        .build();
+            .defaultAdvisors(questionAnswerAdvisor)
+            .build();
   }
 }

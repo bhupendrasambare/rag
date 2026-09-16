@@ -44,37 +44,37 @@ public class ChatMessageServiceImpl implements ChatMessageService {
   private final ChatSessionRepository chatSessionRepository;
   private final UserService userService;
   private final RagChatService ragChatService;
+  private final PersistenceService persistenceService;
 
   @Override
-  public ChatMessageResponse sendMessage(UUID sessionId, SendChatMessageRequest request) {
+  public ChatMessageResponse sendMessage(
+          UUID sessionId,
+          SendChatMessageRequest request) {
 
     UUID userId = userService.getProfile().getId();
 
-    ChatSession session = getOwnedSession(sessionId, userId);
+    getOwnedSession(sessionId, userId);
 
     String question = request.message().trim();
 
-    ChatMessage userMessage = saveUserMessage(session.getId(), question);
+    persistenceService.saveUserMessage(
+            sessionId,
+            question
+    );
 
-    try {
+    String answer = ragChatService.chat(
+            sessionId,
+            question,
+            userId
+    );
 
-      String answer = ragChatService.chat(question, userId);
+    ChatMessage assistantMessage =
+            persistenceService.saveAssistantMessage(
+                    sessionId,
+                    answer
+            );
 
-      ChatMessage assistantMessage = saveAssistantMessage(session.getId(), answer);
-
-      return toResponse(assistantMessage);
-
-    } catch (RuntimeException exception) {
-
-      /*
-       * The USER message has already been committed.
-       *
-       * We intentionally do not delete it if the RAG
-       * operation fails. It represents what the user sent.
-       */
-
-      throw exception;
-    }
+    return toResponse(assistantMessage);
   }
 
   @Override
