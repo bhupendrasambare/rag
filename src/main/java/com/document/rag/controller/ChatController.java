@@ -18,9 +18,9 @@
  */
 package com.document.rag.controller;
 
-import com.document.rag.chat.RagChatService;
-import com.document.rag.chat.dto.ChatRequest;
-import com.document.rag.chat.dto.ChatResponse;
+import com.document.rag.dto.request.ChatRequest;
+import com.document.rag.dto.response.ChatResponse;
+import com.document.rag.service.RagChatService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +35,7 @@ public class ChatController {
   @PostMapping
   public ChatResponse chat(@Valid @RequestBody ChatRequest request) {
 
-    String answer = ragChatService.chat(request.question(), null);
+    String answer = ragChatService.chat(request.sessionId(), request.question(), null);
 
     return new ChatResponse(answer);
   }

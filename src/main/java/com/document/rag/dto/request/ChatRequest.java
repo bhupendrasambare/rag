@@ -16,6 +16,9 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package com.document.rag.chat.dto;
+package com.document.rag.dto.request;
 
-public record ChatResponse(String answer) {}
+import jakarta.validation.constraints.NotBlank;
+import java.util.UUID;
+
+public record ChatRequest(@NotBlank String question, @NotBlank UUID sessionId) {}

@@ -16,8 +16,6 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package com.document.rag.chat.dto;
+package com.document.rag.dto.response;
 
-import jakarta.validation.constraints.NotBlank;
-
-public record ChatRequest(@NotBlank String question) {}
+public record ChatResponse(String answer) {}

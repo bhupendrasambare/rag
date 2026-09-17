@@ -16,18 +16,15 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package com.document.rag.chat;
+package com.document.rag.service;
 
 import com.document.rag.config.ChatMemoryProperties;
-import com.document.rag.service.ChatMemoryService;
-import com.document.rag.service.UserService;
-
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.aspectj.bridge.Message;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
+import org.springframework.ai.chat.messages.Message;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -38,35 +35,24 @@ public class RagChatService {
   private final ChatMemoryService chatMemoryService;
   private final ChatMemoryProperties memoryProperties;
 
-  public String chat(
-          UUID sessionId,
-          String question,
-          UUID userId) {
+  public String chat(UUID sessionId, String question, UUID userId) {
 
     if (question == null || question.isBlank()) {
-      throw new IllegalArgumentException(
-              "Question cannot be empty.");
+      throw new IllegalArgumentException("Question cannot be empty.");
     }
 
-    String filterExpression =
-            "userId == '" + userId + "'";
+    String filterExpression = "userId == '" + userId + "'";
 
     List<Message> history =
-            chatMemoryService.getHistory(
-                    sessionId,
-                    memoryProperties.getMaxMessages());
+        chatMemoryService.getPreviousMessages(sessionId, memoryProperties.getMaxMessages());
 
     return chatClient
-            .prompt()
-            .messages(history)
-            .advisors(advisor -> advisor
-                    .param(
-                            QuestionAnswerAdvisor.FILTER_EXPRESSION,
-                            filterExpression
-                    )
-            )
-            .user(question)
-            .call()
-            .content();
+        .prompt()
+        .messages(history)
+        .advisors(
+            advisor -> advisor.param(QuestionAnswerAdvisor.FILTER_EXPRESSION, filterExpression))
+        .user(question)
+        .call()
+        .content();
   }
 }

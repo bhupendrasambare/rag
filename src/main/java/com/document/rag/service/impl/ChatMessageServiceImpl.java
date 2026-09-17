@@ -18,7 +18,6 @@
  */
 package com.document.rag.service.impl;
 
-import com.document.rag.chat.RagChatService;
 import com.document.rag.constants.ChatRole;
 import com.document.rag.dto.request.SendChatMessageRequest;
 import com.document.rag.dto.response.ChatMessageResponse;
@@ -27,7 +26,9 @@ import com.document.rag.models.ChatMessage;
 import com.document.rag.models.ChatSession;
 import com.document.rag.repository.ChatMessageRepository;
 import com.document.rag.repository.ChatSessionRepository;
+import com.document.rag.service.ChatMessagePersistenceService;
 import com.document.rag.service.ChatMessageService;
+import com.document.rag.service.RagChatService;
 import com.document.rag.service.UserService;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,12 +45,10 @@ public class ChatMessageServiceImpl implements ChatMessageService {
   private final ChatSessionRepository chatSessionRepository;
   private final UserService userService;
   private final RagChatService ragChatService;
-  private final PersistenceService persistenceService;
+  private final ChatMessagePersistenceService persistenceService;
 
   @Override
-  public ChatMessageResponse sendMessage(
-          UUID sessionId,
-          SendChatMessageRequest request) {
+  public ChatMessageResponse sendMessage(UUID sessionId, SendChatMessageRequest request) {
 
     UUID userId = userService.getProfile().getId();
 
@@ -57,22 +56,11 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
     String question = request.message().trim();
 
-    persistenceService.saveUserMessage(
-            sessionId,
-            question
-    );
+    persistenceService.saveUserMessage(sessionId, question);
 
-    String answer = ragChatService.chat(
-            sessionId,
-            question,
-            userId
-    );
+    String answer = ragChatService.chat(sessionId, question, userId);
 
-    ChatMessage assistantMessage =
-            persistenceService.saveAssistantMessage(
-                    sessionId,
-                    answer
-            );
+    ChatMessage assistantMessage = persistenceService.saveAssistantMessage(sessionId, answer);
 
     return toResponse(assistantMessage);
   }
