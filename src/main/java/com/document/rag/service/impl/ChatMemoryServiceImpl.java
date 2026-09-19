@@ -53,7 +53,6 @@ public class ChatMemoryServiceImpl implements ChatMemoryService {
 
   private Message toSpringAiMessage(ChatMessage message) {
 
-    // TODO: fix the issue with bestcase
     return switch (message.getRole()) {
       case USER -> new UserMessage(message.getMessage());
 
