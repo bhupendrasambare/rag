@@ -26,6 +26,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.stereotype.Service;
 
@@ -57,6 +58,8 @@ public class ChatMemoryServiceImpl implements ChatMemoryService {
       case USER -> new UserMessage(message.getMessage());
 
       case ASSISTANT -> new AssistantMessage(message.getMessage());
+
+      case SYSTEM -> new SystemMessage(message.getMessage());
     };
   }
 }
